@@ -1,12 +1,17 @@
-package dataconnector.domain.entities
+package dataconnector.data
 
 import com.zaxxer.hikari.HikariDataSource
+import dataconnector.domain.entities.KogentDataSource
+import dataconnector.domain.entities.KogentQueryResult
+import dataconnector.domain.entities.KogentSQLDataConnector
+import dataconnector.domain.entities.KogentSQLDataSource
+import dataconnector.domain.entities.KogentSQLDataSource.DatabaseType
 import java.sql.Connection
 
-class SQLDataConnectorImpl : SQLDataConnector {
+class SQLDataConnectorImpl : KogentSQLDataConnector {
     override suspend fun fetchData(dataSource: KogentDataSource): KogentQueryResult {
         if (dataSource !is KogentSQLDataSource) {
-            return KogentQueryResult(emptyList(), emptyList())
+            return KogentQueryResult(emptyList(), emptyList(), KogentQueryResult.ResultType.FAILURE)
         }
         return executeQuery(dataSource, dataSource.query)
     }
@@ -29,7 +34,7 @@ class SQLDataConnectorImpl : SQLDataConnector {
             }
             KogentQueryResult(columnNames, rows)
         } catch (e: Exception) {
-            KogentQueryResult(emptyList(), emptyList())
+            KogentQueryResult(emptyList(), emptyList(), KogentQueryResult.ResultType.FAILURE)
         }
 
     private fun getConnection(dataSource: KogentSQLDataSource): Connection =
