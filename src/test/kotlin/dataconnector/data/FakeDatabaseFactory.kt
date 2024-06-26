@@ -4,11 +4,15 @@ import org.h2.jdbcx.JdbcDataSource
 import java.sql.Connection
 
 object FakeDatabaseFactory {
-    fun createFakeDatabase(dbName: String = "testdb"): Connection {
+    fun createFakeDatabase(
+        dbName: String,
+        user: String,
+        password: String,
+    ): Connection {
         val dataSource = JdbcDataSource()
         dataSource.setURL("jdbc:h2:mem:$dbName")
-        dataSource.user = "sa"
-        dataSource.password = ""
+        dataSource.user = user
+        dataSource.password = password
         return dataSource.connection
     }
 

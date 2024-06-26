@@ -14,13 +14,16 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
     implementation("com.zaxxer:HikariCP:5.1.0")
     implementation("com.h2database:h2:2.2.224")
     implementation("org.postgresql:postgresql:42.7.3")
+    implementation("io.milvus:milvus-sdk-java:2.4.0")
+    implementation("org.slf4j:slf4j-api:2.0.12")
     testImplementation(platform("org.junit:junit-bom:5.10.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0-RC")
     testImplementation("io.mockk:mockk:1.13.10")
     testImplementation(kotlin("test"))
 }

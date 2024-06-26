@@ -8,17 +8,15 @@ package dataconnector.domain.entities
  * @param databaseName The name of the SQL database.
  * @param username The username to use to connect to the SQL database.
  * @param password The password to use to connect to the SQL database.
- * @param query The query to retrieve data from the SQL database.
  */
 data class KogentSQLDataSource(
     override val identifier: String,
     val databaseType: DatabaseType,
     val host: String,
-    val port: Int,
     val databaseName: String,
     val username: String,
     val password: String,
-    val query: String,
+    val query: String? = null,
 ) : KogentDataSource {
     /**
      * This enum represents the type of the database.
@@ -27,5 +25,6 @@ data class KogentSQLDataSource(
         MYSQL,
         POSTGRESQL,
         SQLITE,
+        H2,
     }
 }
