@@ -15,4 +15,11 @@ interface KogentSQLDataConnector : KogentDataConnector {
         dataSource: KogentSQLDataSource,
         query: String,
     ): KogentQueryResult
+
+    /**
+     * This function fetches the schema of an SQL data source.
+     * @param dataSource The data source to fetch the schema from.
+     * @return The schema of the data source.
+     */
+    suspend fun fetchSchema(dataSource: KogentSQLDataSource): KogentQueryResult
 }
