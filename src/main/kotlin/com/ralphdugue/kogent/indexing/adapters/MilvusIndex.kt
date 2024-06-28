@@ -1,12 +1,12 @@
-package indexing.data
+package com.ralphdugue.kogent.indexing.adapters
 
-import indexing.domain.entities.KogentDocument
-import indexing.domain.entities.KogentIndex
-import indexing.domain.entities.KogentIndexConfig.KogentVectorDatabaseConfig
+import com.ralphdugue.kogent.indexing.domain.entities.KogentDocument
+import com.ralphdugue.kogent.indexing.domain.entities.KogentIndex
+import com.ralphdugue.kogent.indexing.domain.entities.KogentIndexConfig.KogentVectorDatabaseConfig
 import io.milvus.v2.client.ConnectConfig
 import io.milvus.v2.client.MilvusClientV2
 
-class MilvusKogentIndex(
+class MilvusIndex(
     config: KogentVectorDatabaseConfig,
 ) : KogentIndex {
     private var client: MilvusClientV2

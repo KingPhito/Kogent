@@ -1,4 +1,4 @@
-package indexing.domain.entities
+package com.ralphdugue.kogent.indexing.domain.entities
 
 enum class KogentIndexType {
     VectorDatabase,
