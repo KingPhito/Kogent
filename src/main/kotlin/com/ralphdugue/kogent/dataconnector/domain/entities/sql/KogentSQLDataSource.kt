@@ -1,4 +1,6 @@
-package dataconnector.domain.entities
+package com.ralphdugue.kogent.dataconnector.domain.entities.sql
+
+import com.ralphdugue.kogent.dataconnector.domain.entities.KogentDataSource
 
 /**
  * This class represents an SQL data source.

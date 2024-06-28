@@ -1,16 +1,19 @@
 package dataconnector.data
 
-import dataconnector.domain.entities.KogentQueryResult
-import dataconnector.domain.entities.KogentRESTDataSource
-import dataconnector.domain.entities.KogentSQLDataConnector
-import dataconnector.domain.entities.KogentSQLDataSource
-import indexing.domain.entities.KogentDocument
+import com.ralphdugue.kogent.dataconnector.adapters.connectors.KogentSQLDataConnectorImpl
+import com.ralphdugue.kogent.dataconnector.domain.entities.api.KogentAPIDataSource
+import com.ralphdugue.kogent.dataconnector.domain.entities.sql.KogentQueryResult
+import com.ralphdugue.kogent.dataconnector.domain.entities.sql.KogentSQLDataConnector
+import com.ralphdugue.kogent.dataconnector.domain.entities.sql.KogentSQLDataSource
+import com.ralphdugue.kogent.indexing.domain.entities.KogentDocument
+import io.mockk.mockkClass
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import utils.FakeDatabaseFactory
 import utils.RandomsFactory
 import java.sql.Connection
 import kotlin.test.AfterTest
@@ -32,7 +35,7 @@ class KogentSQLDataConnectorTest {
     @BeforeTest
     fun setUp() {
         Dispatchers.setMain(mainCoroutineDispatcher)
-        subject = SQLDataConnectorImpl()
+        subject = KogentSQLDataConnectorImpl()
         dbConnection = FakeDatabaseFactory.createFakeDatabase(dbName, dbUser, dbPassword)
         FakeDatabaseFactory.createTestTable(
             connection = dbConnection,
@@ -57,60 +60,169 @@ class KogentSQLDataConnectorTest {
      */
 
     @Test
-    fun `fetchData should return a KogentQueryResult with a FAILURE resultType list if the dataSource is not a KogentSQLDataSource`() =
+    fun `fetchData should return a failed result when the data source is not an SQL data source`() =
         runTest {
-            val dataSource =
-                KogentRESTDataSource(
-                    identifier = RandomsFactory.genRandomString(),
-                    url = RandomsFactory.genRandomString(),
-                    endpoint = RandomsFactory.genRandomString(),
+            val actual =
+                subject.fetchData(
+                    dataSource = mockkClass(KogentAPIDataSource::class),
                 )
-            val result = subject.fetchData(dataSource)
-            assertEquals(KogentQueryResult.ResultType.FAILURE, result.resultType)
+
+            val expected =
+                KogentQueryResult.TableQuery(
+                    tableName = "",
+                    columnNames = emptySet(),
+                    rows = emptyList(),
+                    resultType = KogentQueryResult.ResultType.FAILURE,
+                )
+            assertEquals(expected.toString().uppercase(), actual.toString().uppercase())
+            assertEquals(expected.resultType, actual.resultType)
         }
 
     @Test
-    fun `fetchData should return a KogentQueryResult with a FAILURE resultType if the query is null`() =
+    fun `fetchData should return a successful result, with the correct data, when the query is successful`() =
         runTest {
-            val dataSource =
-                KogentSQLDataSource(
-                    identifier = RandomsFactory.genRandomString(),
-                    host = "mem",
-                    databaseName = dbName,
-                    username = dbUser,
-                    password = dbPassword,
-                    databaseType = KogentSQLDataSource.DatabaseType.H2,
+            FakeDatabaseFactory.insertTestData(
+                connection = dbConnection,
+                tableName = dbTable,
+                data =
+                    listOf(
+                        listOf(1, "Alice", 25),
+                        listOf(2, "Bob", 30),
+                    ),
+            )
+
+            val actual =
+                subject.fetchData(
+                    dataSource =
+                        KogentSQLDataSource(
+                            identifier = RandomsFactory.genRandomString(),
+                            databaseType = KogentSQLDataSource.DatabaseType.H2,
+                            host = "mem",
+                            databaseName = dbName,
+                            username = dbUser,
+                            password = dbPassword,
+                            query = "SELECT * FROM $dbTable",
+                        ),
                 )
-            val result = subject.fetchData(dataSource)
-            assertEquals(KogentQueryResult.ResultType.FAILURE, result.resultType)
+
+            val expected =
+                KogentQueryResult.TableQuery(
+                    tableName = dbTable,
+                    columnNames = setOf("ID", "NAME", "AGE"),
+                    rows =
+                        listOf(
+                            mapOf("id" to 1, "NAME" to "Alice", "AGE" to 25),
+                            mapOf("id" to 2, "NAME" to "Bob", "AGE" to 30),
+                        ),
+                )
+            assertEquals(expected.toString().uppercase(), actual.toString().uppercase())
+            assertEquals(expected.resultType, actual.resultType)
+        }
+
+    /**
+     * updateData tests
+     */
+
+    @Test
+    fun `updateData should return a failed result when the query did not update any rows`() =
+        runTest {
+            val actual =
+                subject.updateData(
+                    dataSource =
+                        KogentSQLDataSource(
+                            identifier = RandomsFactory.genRandomString(),
+                            databaseType = KogentSQLDataSource.DatabaseType.H2,
+                            host = "mem",
+                            databaseName = dbName,
+                            username = dbUser,
+                            password = dbPassword,
+                        ),
+                    query = "UPDATE $dbTable SET name = 'Charlie' WHERE id = 3",
+                )
+
+            val expected =
+                KogentQueryResult.TableQuery(
+                    tableName = "",
+                    columnNames = emptySet(),
+                    rows = emptyList(),
+                    resultType = KogentQueryResult.ResultType.FAILURE,
+                )
+            assertEquals(expected.toString().uppercase(), actual.toString().uppercase())
+            assertEquals(expected.resultType, actual.resultType)
         }
 
     @Test
-    fun `fetchData should return a KogentQueryResult with the correct data for a valid query`() =
+    fun `updateData should return a successful result when the query updated rows`() =
         runTest {
-            val data =
-                listOf(
-                    listOf(1, "Alice", 25),
-                    listOf(2, "Bob", 30),
-                    listOf(3, "Charlie", 35),
+            FakeDatabaseFactory.insertTestData(
+                connection = dbConnection,
+                tableName = dbTable,
+                data =
+                    listOf(
+                        listOf(1, "Alice", 25),
+                        listOf(2, "Bob", 30),
+                    ),
+            )
+
+            val actual =
+                subject.updateData(
+                    dataSource =
+                        KogentSQLDataSource(
+                            identifier = RandomsFactory.genRandomString(),
+                            databaseType = KogentSQLDataSource.DatabaseType.H2,
+                            host = "mem",
+                            databaseName = dbName,
+                            username = dbUser,
+                            password = dbPassword,
+                        ),
+                    query = "UPDATE $dbTable SET name = 'Charlie' WHERE id = 2",
                 )
-            FakeDatabaseFactory.insertTestData(dbConnection, dbTable, data)
-            val dataSource =
-                KogentSQLDataSource(
-                    identifier = RandomsFactory.genRandomString(),
-                    host = "mem",
-                    databaseName = dbName,
-                    username = dbUser,
-                    password = dbPassword,
-                    databaseType = KogentSQLDataSource.DatabaseType.H2,
-                    query = "SELECT * FROM $dbTable",
+
+            val expected =
+                KogentQueryResult.TableQuery(
+                    tableName = "",
+                    columnNames = emptySet(),
+                    rows = emptyList(),
+                    resultType = KogentQueryResult.ResultType.SUCCESS,
                 )
-            val result = subject.fetchData(dataSource)
-            val expectedColumnNames = listOf("id", "name", "age").map { it.uppercase() }
-            val expectedRows = data.map { row -> expectedColumnNames.zip(row).toMap() }
-            assertEquals(expectedColumnNames, result.columnNames)
-            assertEquals(expectedRows, result.rows)
-            assertEquals(KogentQueryResult.ResultType.SUCCESS, result.resultType)
+            assertEquals(expected.toString().uppercase(), actual.toString().uppercase())
+            assertEquals(expected.resultType, actual.resultType)
+        }
+
+    /**
+     * fetchSchema tests
+     */
+
+    @Test
+    fun `fetchSchema should return a successful result, with the correct schema, when the query is successful`() =
+        runTest {
+            val actual =
+                subject.fetchSchema(
+                    dataSource =
+                        KogentSQLDataSource(
+                            identifier = RandomsFactory.genRandomString(),
+                            databaseType = KogentSQLDataSource.DatabaseType.H2,
+                            host = "mem",
+                            databaseName = dbName,
+                            username = dbUser,
+                            password = dbPassword,
+                        ),
+                )
+
+            val expected =
+                KogentQueryResult.SchemaQuery(
+                    schema =
+                        mapOf(
+                            dbTable to
+                                mutableMapOf(
+                                    "ID" to "INTEGER",
+                                    "NAME" to "CHARACTER VARYING",
+                                    "AGE" to "INTEGER",
+                                ),
+                        ),
+                )
+            assertEquals(expected.toString().uppercase(), actual.toString().uppercase())
+            assertEquals(expected.resultType, actual.resultType)
         }
 
     /**
@@ -118,93 +230,83 @@ class KogentSQLDataConnectorTest {
      */
 
     @Test
-    fun `createDocument should throw an IllegalArgumentException if the source is not a KogentSQLDataSource`() {
-        val dataSource =
-            KogentRESTDataSource(
-                identifier = RandomsFactory.genRandomString(),
-                url = RandomsFactory.genRandomString(),
-                endpoint = RandomsFactory.genRandomString(),
-            )
-        val data =
-            KogentQueryResult(
-                columnNames = listOf("id", "name", "age"),
-                rows =
-                    listOf(
-                        mapOf("id" to 1, "name" to "Alice", "age" to 25),
-                        mapOf("id" to 2, "name" to "Bob", "age" to 30),
-                        mapOf("id" to 3, "name" to "Charlie", "age" to 35),
-                    ),
-            )
-        try {
-            subject.createDocument(data, dataSource)
-        } catch (e: IllegalArgumentException) {
-            assertEquals("Data source must be an SQL data source", e.message)
-        }
-    }
-
-    @Test
-    fun `createDocument should throw an IllegalArgumentException if the data resultType is FAILURE`() {
-        val dataSource =
-            KogentSQLDataSource(
-                identifier = RandomsFactory.genRandomString(),
-                host = "mem",
-                databaseName = dbName,
-                username = dbUser,
-                password = dbPassword,
-                databaseType = KogentSQLDataSource.DatabaseType.H2,
-            )
-        val data = KogentQueryResult(emptyList(), emptyList(), KogentQueryResult.ResultType.FAILURE)
-        try {
-            subject.createDocument(data, dataSource)
-        } catch (e: IllegalArgumentException) {
-            assertEquals("Cannot create document from failed query result", e.message)
-        }
-    }
-
-    @Test
-    fun `createDocument should return a KogentDocument with the correct data`() {
-        val expected =
-            KogentDocument.KogentSQLDocument(
-                id = RandomsFactory.genRandomString(),
-                sourceType = "SQL",
-                sourceName = dbName,
-                content =
-                    KogentQueryResult(
-                        columnNames = listOf("id", "name", "age"),
-                        rows =
-                            listOf(
-                                mapOf("id" to 1, "name" to "Alice", "age" to 25),
-                                mapOf("id" to 2, "name" to "Bob", "age" to 30),
-                                mapOf("id" to 3, "name" to "Charlie", "age" to 35),
-                            ),
-                    ),
-            )
-        val dataSource =
-            KogentSQLDataSource(
-                identifier = expected.id,
-                host = "mem",
-                databaseName = dbName,
-                username = dbUser,
-                password = dbPassword,
-                databaseType = KogentSQLDataSource.DatabaseType.H2,
-            )
-        val result = subject.createDocument(expected.content, dataSource)
-        assertEquals(expected, result)
-    }
-
-    @Test
-    fun `executeQuery should return a KogentQueryResult with a FAILURE resultType if an exception is thrown`() =
+    fun `createDocument should throw an exception if the data source is not an SQL data source`() =
         runTest {
-            val dataSource =
-                KogentSQLDataSource(
-                    identifier = RandomsFactory.genRandomString(),
-                    host = "mem",
-                    databaseName = dbName,
-                    username = dbUser,
-                    password = dbPassword,
-                    databaseType = KogentSQLDataSource.DatabaseType.H2,
+            try {
+                subject.createDocument(
+                    data = mockkClass(KogentQueryResult::class),
+                    source = mockkClass(KogentAPIDataSource::class),
                 )
-            val result = subject.executeQuery(dataSource, "SELECT * FROM non_existent_table")
-            assertEquals(KogentQueryResult.ResultType.FAILURE, result.resultType)
+            } catch (e: Exception) {
+                assertEquals("Data source is not an SQL data source.", e.message)
+            }
+        }
+
+    @Test
+    fun `createDocument should throw an exception if the query result is a failure`() =
+        runTest {
+            try {
+                subject.createDocument(
+                    data =
+                        KogentQueryResult.TableQuery(
+                            tableName = "",
+                            columnNames = emptySet(),
+                            rows = emptyList(),
+                            resultType = KogentQueryResult.ResultType.FAILURE,
+                        ),
+                    source =
+                        KogentSQLDataSource(
+                            identifier = RandomsFactory.genRandomString(),
+                            databaseType = KogentSQLDataSource.DatabaseType.H2,
+                            host = "mem",
+                            databaseName = dbName,
+                            username = dbUser,
+                            password = dbPassword,
+                        ),
+                )
+            } catch (e: Exception) {
+                assertEquals("Cannot create document from failed query result", e.message)
+            }
+        }
+
+    @Test
+    fun `createDocument should return a KogentSQLDocument with the correct content`() =
+        runTest {
+            val actual =
+                subject.createDocument(
+                    data =
+                        KogentQueryResult.TableQuery(
+                            tableName = dbTable,
+                            columnNames = setOf("ID", "NAME", "AGE"),
+                            rows =
+                                listOf(
+                                    mapOf("id" to 1, "NAME" to "Alice", "AGE" to 25),
+                                    mapOf("id" to 2, "NAME" to "Bob", "AGE" to 30),
+                                ),
+                        ),
+                    source =
+                        KogentSQLDataSource(
+                            identifier = RandomsFactory.genRandomString(),
+                            databaseType = KogentSQLDataSource.DatabaseType.H2,
+                            host = "mem",
+                            databaseName = dbName,
+                            username = dbUser,
+                            password = dbPassword,
+                        ),
+                )
+
+            val expected =
+                KogentDocument.KogentSQLDocument(
+                    id = actual.id,
+                    sourceType = "SQL",
+                    sourceName = dbName,
+                    content =
+                        "Table Query:\n" +
+                            "Table: $dbTable\n" +
+                            "Columns: ID, NAME, AGE\n" +
+                            "id: 1, NAME: Alice, AGE: 25\n" +
+                            "id: 2, NAME: Bob, AGE: 30\n",
+                )
+            assertEquals(expected.toString().uppercase(), actual.toString().uppercase())
         }
 }
