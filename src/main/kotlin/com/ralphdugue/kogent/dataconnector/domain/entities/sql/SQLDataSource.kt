@@ -1,6 +1,6 @@
 package com.ralphdugue.kogent.dataconnector.domain.entities.sql
 
-import com.ralphdugue.kogent.dataconnector.domain.entities.KogentDataSource
+import com.ralphdugue.kogent.dataconnector.domain.entities.DataSource
 
 /**
  * This class represents an SQL data source.
@@ -11,7 +11,7 @@ import com.ralphdugue.kogent.dataconnector.domain.entities.KogentDataSource
  * @param username The username to use to connect to the SQL database.
  * @param password The password to use to connect to the SQL database.
  */
-data class KogentSQLDataSource(
+data class SQLDataSource(
     override val identifier: String,
     val databaseType: DatabaseType,
     val host: String,
@@ -19,7 +19,7 @@ data class KogentSQLDataSource(
     val username: String,
     val password: String,
     val query: String? = null,
-) : KogentDataSource {
+) : DataSource {
     /**
      * This enum represents the type of the database.
      */

@@ -1,36 +1,48 @@
 package com.ralphdugue.kogent.dataconnector.adapters.connectors
 
-import com.ralphdugue.kogent.dataconnector.domain.entities.KogentDataSource
-import com.ralphdugue.kogent.dataconnector.domain.entities.KogentEmbeddingModel
-import com.ralphdugue.kogent.dataconnector.domain.entities.sql.KogentQueryResult
-import com.ralphdugue.kogent.dataconnector.domain.entities.sql.KogentSQLDataConnector
-import com.ralphdugue.kogent.dataconnector.domain.entities.sql.KogentSQLDataSource
-import com.ralphdugue.kogent.dataconnector.domain.entities.sql.KogentSQLDataSource.DatabaseType
-import com.ralphdugue.kogent.indexing.domain.entities.KogentDocument
+import com.ralphdugue.kogent.dataconnector.domain.entities.DataSource
+import com.ralphdugue.kogent.dataconnector.domain.entities.embedding.EmbeddingModel
+import com.ralphdugue.kogent.dataconnector.domain.entities.sql.QueryResult
+import com.ralphdugue.kogent.dataconnector.domain.entities.sql.SQLDataConnector
+import com.ralphdugue.kogent.dataconnector.domain.entities.sql.SQLDataSource
+import com.ralphdugue.kogent.dataconnector.domain.entities.sql.SQLDataSource.DatabaseType
+import com.ralphdugue.kogent.indexing.domain.entities.Document
+import com.ralphdugue.kogent.indexing.domain.entities.Index
 import com.zaxxer.hikari.HikariDataSource
 import org.koin.core.annotation.Single
 import java.sql.Connection
 import java.sql.ResultSet
 
-@Single(binds = [KogentSQLDataConnector::class])
+@Single(binds = [SQLDataConnector::class])
 class KogentSQLDataConnectorImpl(
-    private val embeddingModel: KogentEmbeddingModel,
-) : KogentSQLDataConnector {
-    override suspend fun fetchData(dataSource: KogentDataSource): KogentQueryResult.TableQuery {
-        if (dataSource !is KogentSQLDataSource) {
-            return KogentQueryResult.TableQuery(
+    private val embeddingModel: EmbeddingModel,
+    private val index: Index,
+) : SQLDataConnector {
+    override suspend fun indexData(dataSource: DataSource): Boolean {
+        val schemaQuery = fetchSchema(dataSource as SQLDataSource)
+        val tableQuery = fetchData(dataSource)
+        val schemaDocument = createDocument(schemaQuery, dataSource)
+        val tableDocument = createDocument(tableQuery, dataSource)
+        val schemaIndexed = index.indexData(schemaDocument)
+        val tableIndexed = index.indexData(tableDocument)
+        return schemaIndexed && tableIndexed
+    }
+
+    override suspend fun fetchData(dataSource: DataSource): QueryResult.TableQuery {
+        if (dataSource !is SQLDataSource) {
+            return QueryResult.TableQuery(
                 tableName = "",
                 columnNames = emptySet(),
                 rows = emptyList(),
-                resultType = KogentQueryResult.ResultType.FAILURE,
+                resultType = QueryResult.ResultType.FAILURE,
             )
         }
         if (dataSource.query == null) {
-            return KogentQueryResult.TableQuery(
+            return QueryResult.TableQuery(
                 tableName = "",
                 columnNames = emptySet(),
                 rows = emptyList(),
-                resultType = KogentQueryResult.ResultType.FAILURE,
+                resultType = QueryResult.ResultType.FAILURE,
             )
         }
         val connection = getConnection(dataSource)
@@ -46,40 +58,40 @@ class KogentSQLDataConnectorImpl(
                 rows.add(row)
             }
             connection.close()
-            KogentQueryResult.TableQuery(
+            QueryResult.TableQuery(
                 tableName = resultSet.metaData.getTableName(1),
                 columnNames = columnNames,
                 rows = rows,
-                resultType = KogentQueryResult.ResultType.SUCCESS,
+                resultType = QueryResult.ResultType.SUCCESS,
             )
         }
     }
 
     override suspend fun updateData(
-        dataSource: KogentSQLDataSource,
+        dataSource: SQLDataSource,
         query: String,
-    ): KogentQueryResult {
+    ): QueryResult {
         val connection = getConnection(dataSource)
         val rowsUpdated = executeUpdate(connection, dataSource, query)
         connection.close()
         return if (rowsUpdated > 0) {
-            KogentQueryResult.TableQuery(
+            QueryResult.TableQuery(
                 tableName = "",
                 columnNames = emptySet(),
                 rows = emptyList(),
-                resultType = KogentQueryResult.ResultType.SUCCESS,
+                resultType = QueryResult.ResultType.SUCCESS,
             )
         } else {
-            KogentQueryResult.TableQuery(
+            QueryResult.TableQuery(
                 tableName = "",
                 columnNames = emptySet(),
                 rows = emptyList(),
-                resultType = KogentQueryResult.ResultType.FAILURE,
+                resultType = QueryResult.ResultType.FAILURE,
             )
         }
     }
 
-    override suspend fun fetchSchema(dataSource: KogentSQLDataSource): KogentQueryResult.SchemaQuery {
+    override suspend fun fetchSchema(dataSource: SQLDataSource): QueryResult.SchemaQuery {
         val query =
             when (dataSource.databaseType) {
                 DatabaseType.MYSQL ->
@@ -121,23 +133,23 @@ class KogentSQLDataConnectorImpl(
                 }
         }
         connection.close()
-        return KogentQueryResult.SchemaQuery(
+        return QueryResult.SchemaQuery(
             schema = schema,
-            resultType = KogentQueryResult.ResultType.SUCCESS,
+            resultType = QueryResult.ResultType.SUCCESS,
         )
     }
 
-    override suspend fun createDocument(
-        data: KogentQueryResult,
-        source: KogentDataSource,
-    ): KogentDocument {
-        if (source !is KogentSQLDataSource) {
+    private suspend fun createDocument(
+        data: QueryResult,
+        source: DataSource,
+    ): Document {
+        if (source !is SQLDataSource) {
             throw IllegalArgumentException("Data source is not an SQL data source.")
         }
-        if (data.resultType == KogentQueryResult.ResultType.FAILURE) {
+        if (data.resultType == QueryResult.ResultType.FAILURE) {
             throw IllegalArgumentException("Cannot create document from failed query result")
         }
-        return KogentDocument.KogentSQLDocument(
+        return Document.SQLDocument(
             id = source.identifier,
             sourceType = "SQL",
             sourceName = source.databaseName,
@@ -148,7 +160,7 @@ class KogentSQLDataConnectorImpl(
 
     private fun executeQuery(
         connection: Connection,
-        dataSource: KogentSQLDataSource,
+        dataSource: SQLDataSource,
         query: String,
     ): ResultSet =
         try {
@@ -160,7 +172,7 @@ class KogentSQLDataConnectorImpl(
 
     private fun executeUpdate(
         connection: Connection,
-        dataSource: KogentSQLDataSource,
+        dataSource: SQLDataSource,
         query: String,
     ): Int =
         try {
@@ -170,7 +182,7 @@ class KogentSQLDataConnectorImpl(
             throw IllegalArgumentException("Failed to execute query: ${e.message}")
         }
 
-    private fun getConnection(dataSource: KogentSQLDataSource): Connection =
+    private fun getConnection(dataSource: SQLDataSource): Connection =
         when (dataSource.databaseType) {
             DatabaseType.MYSQL -> {
                 val hikariDataSource = HikariDataSource()

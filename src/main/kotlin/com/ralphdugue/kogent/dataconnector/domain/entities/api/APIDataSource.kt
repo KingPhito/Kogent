@@ -1,6 +1,6 @@
 package com.ralphdugue.kogent.dataconnector.domain.entities.api
 
-import com.ralphdugue.kogent.dataconnector.domain.entities.KogentDataSource
+import com.ralphdugue.kogent.dataconnector.domain.entities.DataSource
 
 /**
  * This class represents a REST data source.
@@ -12,7 +12,7 @@ import com.ralphdugue.kogent.dataconnector.domain.entities.KogentDataSource
  * @param queryParams The query parameters to use (optional).
  * @param body The body of the request (optional).
  */
-data class KogentAPIDataSource(
+data class APIDataSource(
     override val identifier: String,
     val url: String,
     val endpoint: String, // Specific API endpoint to query
@@ -20,7 +20,7 @@ data class KogentAPIDataSource(
     val headers: Map<String, String>?, // Headers (optional)
     val queryParams: Map<String, String>?, // Query parameters (optional)
     val body: String? = null,
-) : KogentDataSource {
+) : DataSource {
     /**
      * This enum represents the HTTP method.
      */

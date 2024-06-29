@@ -2,6 +2,7 @@ package com.ralphdugue.kogent
 
 import com.ralphdugue.kogent.config.KogentConfig
 import com.ralphdugue.kogent.di.modules.KogentModule
+import com.ralphdugue.kogent.query.domain.entities.QueryEngine
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
@@ -22,4 +23,6 @@ object Kogent {
             }
         }
     }
+
+    fun getQueryEngine() = GlobalContext.get().get<QueryEngine>()
 }

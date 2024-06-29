@@ -7,7 +7,7 @@ package com.ralphdugue.kogent.dataconnector.domain.entities.sql
  * @param rows The rows in the result.
  * @param resultType The type of the result.
  */
-sealed interface KogentQueryResult {
+sealed interface QueryResult {
     val resultType: ResultType
     val queryType: String
 
@@ -27,7 +27,7 @@ sealed interface KogentQueryResult {
         val rows: List<Map<String, Any?>>,
         override val resultType: ResultType = ResultType.SUCCESS,
         override val queryType: String = "Table Query",
-    ) : KogentQueryResult {
+    ) : QueryResult {
         override fun toString(): String {
             val stringBuilder = StringBuilder()
             if (resultType == ResultType.SUCCESS) {
@@ -49,7 +49,7 @@ sealed interface KogentQueryResult {
         val schema: Map<String, Map<String, String>>,
         override val resultType: ResultType = ResultType.SUCCESS,
         override val queryType: String = "Database Schema",
-    ) : KogentQueryResult {
+    ) : QueryResult {
         override fun toString(): String {
             val stringBuilder = StringBuilder()
             if (resultType == ResultType.SUCCESS) {
