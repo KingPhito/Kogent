@@ -1,14 +1,14 @@
 package com.ralphdugue.kogent.indexing.adapters
 
-import com.ralphdugue.kogent.indexing.domain.entities.KogentDocument
-import com.ralphdugue.kogent.indexing.domain.entities.KogentIndex
-import com.ralphdugue.kogent.indexing.domain.entities.KogentIndexConfig.KogentVectorDatabaseConfig
+import com.ralphdugue.kogent.indexing.domain.entities.Document
+import com.ralphdugue.kogent.indexing.domain.entities.Index
+import com.ralphdugue.kogent.indexing.domain.entities.IndexConfig.VectorDatabaseConfig
 import io.milvus.v2.client.ConnectConfig
 import io.milvus.v2.client.MilvusClientV2
 
 class MilvusIndex(
-    config: KogentVectorDatabaseConfig,
-) : KogentIndex {
+    config: VectorDatabaseConfig,
+) : Index {
     private var client: MilvusClientV2
 
     init {
@@ -20,14 +20,14 @@ class MilvusIndex(
         client = MilvusClientV2(milvusConfig)
     }
 
-    override suspend fun indexData(data: KogentDocument): Boolean {
+    override suspend fun indexData(data: Document): Boolean {
         TODO()
     }
 
     override suspend fun searchData(
         query: String,
         topK: Int,
-    ): List<KogentDocument> {
+    ): List<Document> {
         TODO("Not yet implemented")
     }
 
@@ -37,7 +37,7 @@ class MilvusIndex(
 
     override suspend fun updateData(
         query: String,
-        data: KogentDocument,
+        data: Document,
     ): Boolean {
         TODO("Not yet implemented")
     }

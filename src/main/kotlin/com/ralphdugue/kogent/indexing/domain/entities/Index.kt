@@ -2,15 +2,15 @@ package com.ralphdugue.kogent.indexing.domain.entities
 
 /**
  * This is the interface for all Indexes to inherit from.
- * Indexes store data from a [KogentDocument] in a way that makes it easy to search and retrieve.
+ * Indexes store data from a [Document] in a way that makes it easy to search and retrieve.
  */
-interface KogentIndex {
+interface Index {
     /**
-     * This function inserts data from a [KogentDocument] into the index.
+     * This function inserts data from a [Document] into the index.
      * @param data The data to index.
      * @return True if the data was successfully indexed, false otherwise.
      */
-    suspend fun indexData(data: KogentDocument): Boolean
+    suspend fun indexData(data: Document): Boolean
 
     /**
      * This function searches the index for data that matches the query.
@@ -21,7 +21,7 @@ interface KogentIndex {
     suspend fun searchData(
         query: String,
         topK: Int = 5,
-    ): List<KogentDocument>
+    ): List<Document>
 
     /**
      * This function deletes data from the index that matches the query.
@@ -38,6 +38,6 @@ interface KogentIndex {
      */
     suspend fun updateData(
         query: String,
-        data: KogentDocument,
+        data: Document,
     ): Boolean
 }

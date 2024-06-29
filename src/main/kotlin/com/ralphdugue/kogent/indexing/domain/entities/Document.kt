@@ -1,23 +1,23 @@
 package com.ralphdugue.kogent.indexing.domain.entities
 
-sealed interface KogentDocument {
+sealed interface Document {
     val id: String
     val sourceType: String
     val sourceName: String
     val embedding: FloatArray
 
-    data class KogentSQLDocument(
+    data class SQLDocument(
         override val id: String,
         override val sourceType: String,
         override val sourceName: String,
         val dialect: String,
         override val embedding: FloatArray,
-    ) : KogentDocument
+    ) : Document
 
-    data class KogentAPIDocument(
+    data class APIDocument(
         override val id: String,
         override val sourceType: String,
         override val sourceName: String,
         override val embedding: FloatArray,
-    ) : KogentDocument
+    ) : Document
 }

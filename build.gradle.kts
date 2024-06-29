@@ -51,6 +51,10 @@ tasks.test {
     }
 }
 
+ksp {
+    arg("KOIN_CONFIG_CHECK", "true")
+}
+
 kotlin {
     jvmToolchain(17)
 }

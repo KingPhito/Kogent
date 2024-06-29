@@ -1,9 +1,15 @@
 package com.ralphdugue.kogent.di.modules
 
 import com.ralphdugue.kogent.config.KogentConfig
-import com.ralphdugue.kogent.dataconnector.domain.entities.KogentDataSourceCollection
-import com.ralphdugue.kogent.dataconnector.domain.entities.KogentEmbeddingModel
-import com.ralphdugue.kogent.query.domain.entities.KogentLLModel
+import com.ralphdugue.kogent.dataconnector.adapters.embedding.HuggingFaceEmbeddingModel
+import com.ralphdugue.kogent.dataconnector.domain.entities.api.APIDataConnector
+import com.ralphdugue.kogent.dataconnector.domain.entities.embedding.EmbeddingConfig
+import com.ralphdugue.kogent.dataconnector.domain.entities.embedding.EmbeddingModel
+import com.ralphdugue.kogent.indexing.domain.entities.Index
+import com.ralphdugue.kogent.indexing.utils.IndexFactory
+import com.ralphdugue.kogent.query.adapters.HuggingFaceLLModel
+import com.ralphdugue.kogent.query.domain.entities.LLModel
+import com.ralphdugue.kogent.query.domain.entities.LLModelConfig
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpTimeout
@@ -36,20 +42,23 @@ class KogentModule(
         }
 
     @Single
-    fun provideLLModel(): KogentLLModel {
-        TODO()
-    }
+    fun provideLLModel(apiDataConnector: APIDataConnector): LLModel =
+        when (val llModelConfig = config.llModelConfig) {
+            is LLModelConfig.HuggingFaceLLModelConfig -> HuggingFaceLLModel(llModelConfig, apiDataConnector)
+            null -> TODO()
+        }
 
     @Single
-    fun provideDataSources(): KogentDataSourceCollection {
-        TODO()
-    }
+    fun provideEmbeddingModel(apiDataConnector: APIDataConnector): EmbeddingModel =
+        if (config.embeddingConfig != null) {
+            when (val embeddingConfig = config.embeddingConfig) {
+                is EmbeddingConfig.HuggingFaceEmbeddingConfig -> HuggingFaceEmbeddingModel(embeddingConfig, apiDataConnector)
+                null -> TODO()
+            }
+        } else {
+            TODO()
+        }
 
     @Single
-    fun provideEmbeddingModel(): KogentEmbeddingModel {
-        TODO()
-    }
-
-    @Single
-    fun 
+    fun provideIndex(): Index = IndexFactory.createIndex(config.indexConfig)
 }

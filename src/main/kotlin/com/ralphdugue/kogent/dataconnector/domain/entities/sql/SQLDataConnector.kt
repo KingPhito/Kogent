@@ -1,14 +1,19 @@
 package com.ralphdugue.kogent.dataconnector.domain.entities.sql
 
-import com.ralphdugue.kogent.dataconnector.domain.entities.KogentDataConnector
-import com.ralphdugue.kogent.dataconnector.domain.entities.KogentDataSource
+import com.ralphdugue.kogent.dataconnector.domain.entities.DataConnector
+import com.ralphdugue.kogent.dataconnector.domain.entities.DataSource
 
 /**
  * This is the interface for all SQLDataConnectors classes to inherit from.
  * SQLDataConnectors are classes that are responsible for sending queries to an SQL data source.
  */
-interface KogentSQLDataConnector : KogentDataConnector<KogentQueryResult> {
-    override suspend fun fetchData(dataSource: KogentDataSource): KogentQueryResult.TableQuery
+interface SQLDataConnector : DataConnector<QueryResult> {
+    /**
+     * This function fetches data from an SQL data source.
+     * @param dataSource The data source to fetch data from.
+     * @return The result of the query.
+     */
+    suspend fun fetchData(dataSource: DataSource): QueryResult.TableQuery
 
     /**
      * This function updates the data of an SQL data source.
@@ -17,14 +22,14 @@ interface KogentSQLDataConnector : KogentDataConnector<KogentQueryResult> {
      * @return The result of the query.
      */
     suspend fun updateData(
-        dataSource: KogentSQLDataSource,
+        dataSource: SQLDataSource,
         query: String,
-    ): KogentQueryResult
+    ): QueryResult
 
     /**
      * This function fetches the schema of an SQL data source.
      * @param dataSource The data source to fetch the schema from.
      * @return The schema of the data source.
      */
-    suspend fun fetchSchema(dataSource: KogentSQLDataSource): KogentQueryResult.SchemaQuery
+    suspend fun fetchSchema(dataSource: SQLDataSource): QueryResult.SchemaQuery
 }
