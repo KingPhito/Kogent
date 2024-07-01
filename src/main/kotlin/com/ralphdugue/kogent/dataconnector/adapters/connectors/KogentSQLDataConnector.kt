@@ -14,7 +14,7 @@ import java.sql.Connection
 import java.sql.ResultSet
 
 @Single(binds = [SQLDataConnector::class])
-class KogentSQLDataConnectorImpl(
+class KogentSQLDataConnector(
     private val embeddingModel: EmbeddingModel,
     private val index: Index,
 ) : SQLDataConnector {
@@ -46,9 +46,10 @@ class KogentSQLDataConnectorImpl(
             )
         }
         val connection = getConnection(dataSource)
-        return executeQuery(connection, dataSource, dataSource.query).use { resultSet ->
+        return executeQuery(connection, dataSource.query).use { resultSet ->
             val columnNames = mutableSetOf<String>()
             val rows = mutableListOf<Map<String, Any?>>()
+            val tableName = resultSet.metaData.getTableName(1)
             while (resultSet.next()) {
                 val row = mutableMapOf<String, Any?>()
                 for (i in 1..resultSet.metaData.columnCount) {
@@ -59,7 +60,7 @@ class KogentSQLDataConnectorImpl(
             }
             connection.close()
             QueryResult.TableQuery(
-                tableName = resultSet.metaData.getTableName(1),
+                tableName = tableName,
                 columnNames = columnNames,
                 rows = rows,
                 resultType = QueryResult.ResultType.SUCCESS,
@@ -72,7 +73,7 @@ class KogentSQLDataConnectorImpl(
         query: String,
     ): QueryResult {
         val connection = getConnection(dataSource)
-        val rowsUpdated = executeUpdate(connection, dataSource, query)
+        val rowsUpdated = executeUpdate(connection, query)
         connection.close()
         return if (rowsUpdated > 0) {
             QueryResult.TableQuery(
@@ -121,7 +122,7 @@ class KogentSQLDataConnectorImpl(
                     """.trimIndent()
             }
         val connection = getConnection(dataSource)
-        val result = executeQuery(connection, dataSource, query)
+        val result = executeQuery(connection, query)
         val schema = mutableMapOf<String, MutableMap<String, String>>()
         while (result.next()) {
             val tableName = result.getString(1)
@@ -160,7 +161,6 @@ class KogentSQLDataConnectorImpl(
 
     private fun executeQuery(
         connection: Connection,
-        dataSource: SQLDataSource,
         query: String,
     ): ResultSet =
         try {
@@ -172,7 +172,6 @@ class KogentSQLDataConnectorImpl(
 
     private fun executeUpdate(
         connection: Connection,
-        dataSource: SQLDataSource,
         query: String,
     ): Int =
         try {

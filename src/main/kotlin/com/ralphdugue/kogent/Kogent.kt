@@ -15,7 +15,8 @@ object Kogent {
     ) {
         // Check if Koin is already started
         if (GlobalContext.getOrNull() == null) {
-            modules.plus(KogentModule(config).module).let { modules ->
+            val kogentModule = KogentModule().apply { this.config = config }.module
+            modules.plus(kogentModule).let { modules ->
                 startKoin {
                     // Add your Koin configuration here (e.g., logger)
                     modules(modules)
