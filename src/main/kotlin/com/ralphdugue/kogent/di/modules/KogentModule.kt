@@ -2,7 +2,6 @@ package com.ralphdugue.kogent.di.modules
 
 import com.ralphdugue.kogent.config.KogentConfig
 import com.ralphdugue.kogent.dataconnector.adapters.embedding.HuggingFaceEmbeddingModel
-import com.ralphdugue.kogent.dataconnector.domain.entities.api.APIDataConnector
 import com.ralphdugue.kogent.dataconnector.domain.entities.embedding.EmbeddingConfig
 import com.ralphdugue.kogent.dataconnector.domain.entities.embedding.EmbeddingModel
 import com.ralphdugue.kogent.indexing.domain.entities.Index
@@ -22,9 +21,9 @@ import org.koin.core.annotation.Single
 
 @Module
 @ComponentScan("com.ralphdugue.kogent")
-class KogentModule(
-    private val config: KogentConfig,
-) {
+class KogentModule {
+    lateinit var config: KogentConfig
+
     @Single
     fun provideHttpClient(): HttpClient =
         HttpClient(CIO) {
@@ -42,17 +41,17 @@ class KogentModule(
         }
 
     @Single
-    fun provideLLModel(apiDataConnector: APIDataConnector): LLModel =
+    fun provideLLModel(client: HttpClient): LLModel =
         when (val llModelConfig = config.llModelConfig) {
-            is LLModelConfig.HuggingFaceLLModelConfig -> HuggingFaceLLModel(llModelConfig, apiDataConnector)
+            is LLModelConfig.HuggingFaceLLModelConfig -> HuggingFaceLLModel(llModelConfig, client)
             null -> TODO()
         }
 
     @Single
-    fun provideEmbeddingModel(apiDataConnector: APIDataConnector): EmbeddingModel =
+    fun provideEmbeddingModel(client: HttpClient): EmbeddingModel =
         if (config.embeddingConfig != null) {
             when (val embeddingConfig = config.embeddingConfig) {
-                is EmbeddingConfig.HuggingFaceEmbeddingConfig -> HuggingFaceEmbeddingModel(embeddingConfig, apiDataConnector)
+                is EmbeddingConfig.HuggingFaceEmbeddingConfig -> HuggingFaceEmbeddingModel(embeddingConfig, client)
                 null -> TODO()
             }
         } else {

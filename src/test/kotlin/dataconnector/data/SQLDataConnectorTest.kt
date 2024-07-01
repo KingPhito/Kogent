@@ -1,10 +1,15 @@
 package dataconnector.data
 
-import com.ralphdugue.kogent.dataconnector.adapters.connectors.KogentSQLDataConnectorImpl
+import com.ralphdugue.kogent.dataconnector.adapters.connectors.KogentSQLDataConnector
 import com.ralphdugue.kogent.dataconnector.domain.entities.api.APIDataSource
+import com.ralphdugue.kogent.dataconnector.domain.entities.embedding.EmbeddingModel
 import com.ralphdugue.kogent.dataconnector.domain.entities.sql.QueryResult
 import com.ralphdugue.kogent.dataconnector.domain.entities.sql.SQLDataConnector
 import com.ralphdugue.kogent.dataconnector.domain.entities.sql.SQLDataSource
+import com.ralphdugue.kogent.indexing.domain.entities.Index
+import io.mockk.coEvery
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
 import io.mockk.mockkClass
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -12,6 +17,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import org.junit.jupiter.api.extension.ExtendWith
 import utils.FakeDatabaseFactory
 import utils.RandomsFactory
 import java.sql.Connection
@@ -20,10 +26,18 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@ExtendWith(MockKExtension::class)
 @OptIn(ExperimentalCoroutinesApi::class)
 class SQLDataConnectorTest {
     @OptIn(DelicateCoroutinesApi::class)
     private val mainCoroutineDispatcher = newSingleThreadContext("main")
+
+    @MockK
+    private lateinit var embeddingModel: EmbeddingModel
+
+    @MockK
+    private lateinit var index: Index
+
     private lateinit var subject: SQLDataConnector
     private val dbName: String = "DB_${RandomsFactory.genRandomString()}"
     private val dbUser: String = RandomsFactory.genRandomString()
@@ -34,7 +48,9 @@ class SQLDataConnectorTest {
     @BeforeTest
     fun setUp() {
         Dispatchers.setMain(mainCoroutineDispatcher)
-        subject = KogentSQLDataConnectorImpl()
+        coEvery { embeddingModel.getEmbedding(any()) } returns FloatArray(0)
+        coEvery { index.indexData(any()) } returns true
+        subject = KogentSQLDataConnector(embeddingModel, index)
         dbConnection = FakeDatabaseFactory.createFakeDatabase(dbName, dbUser, dbPassword)
         FakeDatabaseFactory.createTestTable(
             connection = dbConnection,
@@ -64,6 +80,33 @@ class SQLDataConnectorTest {
             val actual =
                 subject.fetchData(
                     dataSource = mockkClass(APIDataSource::class),
+                )
+
+            val expected =
+                QueryResult.TableQuery(
+                    tableName = "",
+                    columnNames = emptySet(),
+                    rows = emptyList(),
+                    resultType = QueryResult.ResultType.FAILURE,
+                )
+            assertEquals(expected.toString().uppercase(), actual.toString().uppercase())
+            assertEquals(expected.resultType, actual.resultType)
+        }
+
+    @Test
+    fun `fetchData should return a failed result when the query is null`() =
+        runTest {
+            val actual =
+                subject.fetchData(
+                    dataSource =
+                        SQLDataSource(
+                            identifier = RandomsFactory.genRandomString(),
+                            databaseType = SQLDataSource.DatabaseType.H2,
+                            host = "mem",
+                            databaseName = dbName,
+                            username = dbUser,
+                            password = dbPassword,
+                        ),
                 )
 
             val expected =
