@@ -7,17 +7,13 @@ import com.ralphdugue.kogent.dataconnector.domain.entities.sql.QueryResult
 import com.ralphdugue.kogent.dataconnector.domain.entities.sql.SQLDataConnector
 import com.ralphdugue.kogent.dataconnector.domain.entities.sql.SQLDataSource
 import com.ralphdugue.kogent.indexing.domain.entities.Index
+import common.BaseTest
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockkClass
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import org.junit.jupiter.api.extension.ExtendWith
 import utils.FakeDatabaseFactory
 import utils.RandomsFactory
 import java.sql.Connection
@@ -26,11 +22,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@ExtendWith(MockKExtension::class)
-@OptIn(ExperimentalCoroutinesApi::class)
-class SQLDataConnectorTest {
-    @OptIn(DelicateCoroutinesApi::class)
-    private val mainCoroutineDispatcher = newSingleThreadContext("main")
+class SQLDataConnectorTest : BaseTest() {
 
     @MockK
     private lateinit var embeddingModel: EmbeddingModel
@@ -48,8 +40,8 @@ class SQLDataConnectorTest {
     @BeforeTest
     fun setUp() {
         Dispatchers.setMain(mainCoroutineDispatcher)
-        coEvery { embeddingModel.getEmbedding(any()) } returns FloatArray(0)
-        coEvery { index.indexData(any()) } returns true
+        coEvery { embeddingModel.getEmbedding(any()) } returns listOf(FloatArray(0))
+        coEvery { index.indexDocument(any()) } returns true
         subject = KogentSQLDataConnector(embeddingModel, index)
         dbConnection = FakeDatabaseFactory.createFakeDatabase(dbName, dbUser, dbPassword)
         FakeDatabaseFactory.createTestTable(
