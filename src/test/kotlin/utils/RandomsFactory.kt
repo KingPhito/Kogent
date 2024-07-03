@@ -18,4 +18,10 @@ object RandomsFactory {
     }
 
     fun genRandomInt(): Int = (0..Int.MAX_VALUE).random()
+
+    fun genRandomFloat(): Float = (0..Float.MAX_VALUE.toInt()).random().toFloat()
+
+    fun genRandomFloatArray(size: Int = 10): FloatArray = FloatArray(size) { genRandomFloat() }
+
+    fun genRandomFloatList(size: Int = 10): List<FloatArray> = List(size) { genRandomFloatArray() }
 }

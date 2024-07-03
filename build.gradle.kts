@@ -35,6 +35,7 @@ dependencies {
     implementation("com.h2database:h2:2.2.224")
     implementation("org.postgresql:postgresql:42.7.3")
     implementation("io.milvus:milvus-sdk-java:2.4.0")
+    implementation("org.json:json:20210307")
     implementation("org.slf4j:slf4j-api:2.0.12")
     testImplementation(platform("org.junit:junit-bom:5.10.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")

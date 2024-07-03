@@ -23,8 +23,8 @@ class KogentSQLDataConnector(
         val tableQuery = fetchData(dataSource)
         val schemaDocument = createDocument(schemaQuery, dataSource)
         val tableDocument = createDocument(tableQuery, dataSource)
-        val schemaIndexed = index.indexData(schemaDocument)
-        val tableIndexed = index.indexData(tableDocument)
+        val schemaIndexed = index.indexDocument(schemaDocument)
+        val tableIndexed = index.indexDocument(tableDocument)
         return schemaIndexed && tableIndexed
     }
 

@@ -1,7 +1,7 @@
 package com.ralphdugue.kogent.dataconnector.domain.entities.embedding
 
 interface EmbeddingModel {
-    suspend fun getEmbedding(text: String): FloatArray
+    suspend fun getEmbedding(text: String): List<FloatArray>
 }
 
 sealed interface EmbeddingConfig {
