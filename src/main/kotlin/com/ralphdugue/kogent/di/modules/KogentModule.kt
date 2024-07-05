@@ -1,6 +1,7 @@
 package com.ralphdugue.kogent.di.modules
 
 import com.ralphdugue.kogent.config.KogentConfig
+import com.ralphdugue.kogent.dataconnector.adapters.embedding.APIEmbeddingModel
 import com.ralphdugue.kogent.dataconnector.adapters.embedding.HuggingFaceEmbeddingModel
 import com.ralphdugue.kogent.dataconnector.domain.entities.embedding.EmbeddingConfig
 import com.ralphdugue.kogent.dataconnector.domain.entities.embedding.EmbeddingModel
@@ -49,13 +50,9 @@ class KogentModule {
 
     @Single
     fun provideEmbeddingModel(client: HttpClient): EmbeddingModel =
-        if (config.embeddingConfig != null) {
-            when (val embeddingConfig = config.embeddingConfig) {
-                is EmbeddingConfig.HuggingFaceEmbeddingConfig -> HuggingFaceEmbeddingModel(embeddingConfig, client)
-                null -> TODO()
-            }
-        } else {
-            TODO()
+        when (val embeddingConfig = config.embeddingConfig) {
+            is EmbeddingConfig.APIEmbeddingConfig -> APIEmbeddingModel(embeddingConfig, client)
+            is EmbeddingConfig.HuggingFaceEmbeddingConfig -> HuggingFaceEmbeddingModel(embeddingConfig, client)
         }
 
     @Single

@@ -4,7 +4,7 @@ package utils
  * This object contains functions that generate random values.
  * These functions are useful for testing purposes.
  */
-object RandomsFactory {
+object RandomPrimitivesFactory {
     /**
      * This function generates a random string.
      * @param length The length of the string to generate.
@@ -22,6 +22,4 @@ object RandomsFactory {
     fun genRandomFloat(): Float = (0..Float.MAX_VALUE.toInt()).random().toFloat()
 
     fun genRandomFloatArray(size: Int = 10): FloatArray = FloatArray(size) { genRandomFloat() }
-
-    fun genRandomFloatList(size: Int = 10): List<FloatArray> = List(size) { genRandomFloatArray() }
 }

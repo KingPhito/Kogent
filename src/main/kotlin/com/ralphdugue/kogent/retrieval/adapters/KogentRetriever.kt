@@ -10,7 +10,10 @@ class KogentRetriever(
     private val index: Index,
     private val embeddingModel: EmbeddingModel,
 ) : Retriever {
-    override suspend fun retrieve(query: String): String {
+    override suspend fun retrieve(
+        query: String,
+        sourceName: String,
+    ): String {
         TODO("Not yet implemented")
     }
 }

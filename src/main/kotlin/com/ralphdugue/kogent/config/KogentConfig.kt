@@ -9,5 +9,5 @@ data class KogentConfig(
     val dataSources: List<DataSource>,
     val llModelConfig: LLModelConfig,
     val indexConfig: IndexConfig,
-    val embeddingConfig: EmbeddingConfig? = null,
+    val embeddingConfig: EmbeddingConfig,
 )
