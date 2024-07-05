@@ -5,7 +5,7 @@ import com.ralphdugue.kogent.dataconnector.domain.entities.DataSource
 /**
  * This class represents a REST data source.
  * @param identifier The identifier of the data source.
- * @param url The URL of the REST API.
+ * @param baseUrl The base URL of the API.
  * @param endpoint The endpoint to query.
  * @param method The HTTP method to use.
  * @param headers The headers to use (optional).
@@ -14,12 +14,12 @@ import com.ralphdugue.kogent.dataconnector.domain.entities.DataSource
  */
 data class APIDataSource(
     override val identifier: String,
-    val url: String,
+    val baseUrl: String,
     val endpoint: String, // Specific API endpoint to query
     val method: HttpMethod, // HTTP method (GET, POST, etc.)
     val headers: Map<String, String>?, // Headers (optional)
     val queryParams: Map<String, String>? = null, // Query parameters (optional)
-    val body: String? = null,
+    val body: Map<String, String>? = null,
 ) : DataSource {
     /**
      * This enum represents the HTTP method.
