@@ -15,7 +15,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.Assertions.assertEquals
-import utils.RandomsFactory
+import utils.RandomPrimitivesFactory
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -50,10 +50,10 @@ class UpdateDocumentTest : BaseTest() {
         runTest {
             val document =
                 Document.SQLDocument(
-                    id = RandomsFactory.genRandomString(),
-                    sourceName = RandomsFactory.genRandomString(),
-                    dialect = RandomsFactory.genRandomString(),
-                    embedding = RandomsFactory.genRandomFloatList(),
+                    id = RandomPrimitivesFactory.genRandomString(),
+                    sourceName = RandomPrimitivesFactory.genRandomString(),
+                    dialect = RandomPrimitivesFactory.genRandomString(),
+                    embedding = RandomPrimitivesFactory.genRandomFloatArray(),
                 )
             val mockResponse = UpsertResp.builder().upsertCnt(1).build()
             every { clientV2.upsert(any()) } returns mockResponse
@@ -68,10 +68,10 @@ class UpdateDocumentTest : BaseTest() {
         runTest {
             val document =
                 Document.SQLDocument(
-                    id = RandomsFactory.genRandomString(),
-                    sourceName = RandomsFactory.genRandomString(),
-                    dialect = RandomsFactory.genRandomString(),
-                    embedding = RandomsFactory.genRandomFloatList(),
+                    id = RandomPrimitivesFactory.genRandomString(),
+                    sourceName = RandomPrimitivesFactory.genRandomString(),
+                    dialect = RandomPrimitivesFactory.genRandomString(),
+                    embedding = RandomPrimitivesFactory.genRandomFloatArray(),
                 )
             every { clientV2.upsert(any()) } throws Exception()
 

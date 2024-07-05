@@ -5,6 +5,9 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import kotlinx.serialization.json.buildJsonObject
 
 sealed interface KogentAPIResponse<out T : Any> {
     data class Success<out T : Any>(
@@ -22,13 +25,22 @@ suspend fun getResponse(
 ): KogentAPIResponse<String> =
     try {
         val response =
-            client.get(source.url + source.endpoint) {
-                source.headers?.forEach { (key, value) ->
-                    header(key, value)
+            when (source.method) {
+                APIDataSource.HttpMethod.GET -> {
+                    client.get(source.url + source.endpoint) {
+                        source.headers?.forEach { header(it.key, it.value) }
+                        source.queryParams?.forEach { parameter(it.key, it.value) }
+                    }
                 }
-                source.queryParams?.forEach { (key, value) ->
-                    parameter(key, value)
+                APIDataSource.HttpMethod.POST -> {
+                    client.post(source.url + source.endpoint) {
+                        source.headers?.forEach { header(it.key, it.value) }
+                        source.queryParams?.forEach { parameter(it.key, it.value) }
+                        source.body?.let { setBody(buildJsonObject { }) }
+                    }
                 }
+                APIDataSource.HttpMethod.PUT -> TODO()
+                APIDataSource.HttpMethod.DELETE -> TODO()
             }
         KogentAPIResponse.Success(response.body())
     } catch (e: Exception) {

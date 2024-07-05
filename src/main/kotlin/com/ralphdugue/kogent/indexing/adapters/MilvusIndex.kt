@@ -12,10 +12,12 @@ import io.milvus.v2.service.collection.request.HasCollectionReq
 import io.milvus.v2.service.collection.request.LoadCollectionReq
 import io.milvus.v2.service.vector.request.DeleteReq
 import io.milvus.v2.service.vector.request.InsertReq
+import io.milvus.v2.service.vector.request.SearchReq
 import io.milvus.v2.service.vector.request.UpsertReq
+import io.milvus.v2.service.vector.response.SearchResp.SearchResult
 
 class MilvusIndex(
-    config: VectorDatabaseConfig,
+    private val config: VectorDatabaseConfig,
     private val client: MilvusClientV2,
 ) : Index {
     override suspend fun indexDocument(document: Document): Boolean =
@@ -40,11 +42,23 @@ class MilvusIndex(
         }
 
     override suspend fun searchIndex(
+        sourceName: String,
         query: FloatArray,
         topK: Int,
-    ): List<Document> {
-        TODO("Not yet implemented")
-    }
+    ): List<Document> =
+        try {
+            val response =
+                client.search(
+                    SearchReq
+                        .builder()
+                        .data(listOf(query.toList()))
+                        .topK(config.extraParams["topK"]?.toInt() ?: topK)
+                        .build(),
+                )
+            response.searchResults[0].map { createDocument(it) }
+        } catch (e: Exception) {
+            emptyList()
+        }
 
     override suspend fun deleteDocument(document: Document): Boolean =
         try {
@@ -82,13 +96,28 @@ class MilvusIndex(
                 .fluentPut("id", document.id)
                 .fluentPut("sourceName", document.sourceName)
                 .fluentPut("sourceType", document.sourceType)
-                .fluentPut("embedding", document.embedding)
+                .fluentPut("vector", document.embedding.asList())
         return when (document) {
             is Document.SQLDocument -> {
-                data.put("dialect", document.dialect)
+                data["dialect"] = document.dialect
                 listOf(data)
             }
             is Document.APIDocument -> TODO()
+        }
+    }
+
+    private fun createDocument(searchResult: SearchResult): Document {
+        val sourceName = searchResult.entity["sourceName"] as String
+        val sourceType = searchResult.entity["sourceType"] as String
+        val id = searchResult.id as String
+        val embedding = (searchResult.entity["embedding"] as List<Float>).toFloatArray()
+        return when (sourceType) {
+            "SQL" -> {
+                val dialect = searchResult.entity["dialect"] as String
+                Document.SQLDocument(id = id, sourceName = sourceName, dialect = dialect, embedding = embedding)
+            }
+            "API" -> Document.APIDocument(id = id, sourceName = sourceName, embedding = embedding)
+            else -> throw IllegalArgumentException("Invalid source type")
         }
     }
 

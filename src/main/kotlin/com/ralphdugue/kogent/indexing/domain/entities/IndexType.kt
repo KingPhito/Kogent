@@ -15,6 +15,6 @@ sealed interface IndexConfig {
         override val type: IndexType = IndexType.VectorDatabase,
         val vectorDatabaseType: VectorDatabaseOptions,
         val connectionString: String,
-        val credentials: List<Map<String, String>> = emptyList(),
+        val extraParams: Map<String, String> = emptyMap(),
     ) : IndexConfig
 }

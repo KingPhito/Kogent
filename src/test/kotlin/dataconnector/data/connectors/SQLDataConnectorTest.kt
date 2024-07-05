@@ -1,4 +1,4 @@
-package dataconnector.data
+package dataconnector.data.connectors
 
 import com.ralphdugue.kogent.dataconnector.adapters.connectors.KogentSQLDataConnector
 import com.ralphdugue.kogent.dataconnector.domain.entities.api.APIDataSource
@@ -15,7 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import utils.FakeDatabaseFactory
-import utils.RandomsFactory
+import utils.RandomPrimitivesFactory
 import java.sql.Connection
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -23,7 +23,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class SQLDataConnectorTest : BaseTest() {
-
     @MockK
     private lateinit var embeddingModel: EmbeddingModel
 
@@ -31,16 +30,16 @@ class SQLDataConnectorTest : BaseTest() {
     private lateinit var index: Index
 
     private lateinit var subject: SQLDataConnector
-    private val dbName: String = "DB_${RandomsFactory.genRandomString()}"
-    private val dbUser: String = RandomsFactory.genRandomString()
-    private val dbPassword: String = RandomsFactory.genRandomString()
-    private val dbTable: String = "table_${RandomsFactory.genRandomString()}"
+    private val dbName: String = "DB_${RandomPrimitivesFactory.genRandomString()}"
+    private val dbUser: String = RandomPrimitivesFactory.genRandomString()
+    private val dbPassword: String = RandomPrimitivesFactory.genRandomString()
+    private val dbTable: String = "table_${RandomPrimitivesFactory.genRandomString()}"
     private lateinit var dbConnection: Connection
 
     @BeforeTest
     fun setUp() {
         Dispatchers.setMain(mainCoroutineDispatcher)
-        coEvery { embeddingModel.getEmbedding(any()) } returns listOf(FloatArray(0))
+        coEvery { embeddingModel.getEmbedding(any()) } returns FloatArray(0)
         coEvery { index.indexDocument(any()) } returns true
         subject = KogentSQLDataConnector(embeddingModel, index)
         dbConnection = FakeDatabaseFactory.createFakeDatabase(dbName, dbUser, dbPassword)
@@ -92,7 +91,7 @@ class SQLDataConnectorTest : BaseTest() {
                 subject.fetchData(
                     dataSource =
                         SQLDataSource(
-                            identifier = RandomsFactory.genRandomString(),
+                            identifier = RandomPrimitivesFactory.genRandomString(),
                             databaseType = SQLDataSource.DatabaseType.H2,
                             host = "mem",
                             databaseName = dbName,
@@ -129,7 +128,7 @@ class SQLDataConnectorTest : BaseTest() {
                 subject.fetchData(
                     dataSource =
                         SQLDataSource(
-                            identifier = RandomsFactory.genRandomString(),
+                            identifier = RandomPrimitivesFactory.genRandomString(),
                             databaseType = SQLDataSource.DatabaseType.H2,
                             host = "mem",
                             databaseName = dbName,
@@ -164,7 +163,7 @@ class SQLDataConnectorTest : BaseTest() {
                 subject.updateData(
                     dataSource =
                         SQLDataSource(
-                            identifier = RandomsFactory.genRandomString(),
+                            identifier = RandomPrimitivesFactory.genRandomString(),
                             databaseType = SQLDataSource.DatabaseType.H2,
                             host = "mem",
                             databaseName = dbName,
@@ -202,7 +201,7 @@ class SQLDataConnectorTest : BaseTest() {
                 subject.updateData(
                     dataSource =
                         SQLDataSource(
-                            identifier = RandomsFactory.genRandomString(),
+                            identifier = RandomPrimitivesFactory.genRandomString(),
                             databaseType = SQLDataSource.DatabaseType.H2,
                             host = "mem",
                             databaseName = dbName,
@@ -234,7 +233,7 @@ class SQLDataConnectorTest : BaseTest() {
                 subject.fetchSchema(
                     dataSource =
                         SQLDataSource(
-                            identifier = RandomsFactory.genRandomString(),
+                            identifier = RandomPrimitivesFactory.genRandomString(),
                             databaseType = SQLDataSource.DatabaseType.H2,
                             host = "mem",
                             databaseName = dbName,

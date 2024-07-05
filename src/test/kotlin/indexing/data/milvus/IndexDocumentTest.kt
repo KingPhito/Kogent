@@ -14,7 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import utils.RandomsFactory
+import utils.RandomPrimitivesFactory
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -50,10 +50,10 @@ class IndexDocumentTest : BaseTest() {
         runTest {
             val document =
                 Document.SQLDocument(
-                    id = RandomsFactory.genRandomString(),
-                    sourceName = RandomsFactory.genRandomString(),
-                    dialect = RandomsFactory.genRandomString(),
-                    embedding = RandomsFactory.genRandomFloatList(),
+                    id = RandomPrimitivesFactory.genRandomString(),
+                    sourceName = RandomPrimitivesFactory.genRandomString(),
+                    dialect = RandomPrimitivesFactory.genRandomString(),
+                    embedding = RandomPrimitivesFactory.genRandomFloatArray(),
                 )
             val mockResponse =
                 InsertResp
@@ -75,10 +75,10 @@ class IndexDocumentTest : BaseTest() {
         runTest {
             val document =
                 Document.SQLDocument(
-                    id = RandomsFactory.genRandomString(),
-                    sourceName = RandomsFactory.genRandomString(),
-                    dialect = RandomsFactory.genRandomString(),
-                    embedding = RandomsFactory.genRandomFloatList(),
+                    id = RandomPrimitivesFactory.genRandomString(),
+                    sourceName = RandomPrimitivesFactory.genRandomString(),
+                    dialect = RandomPrimitivesFactory.genRandomString(),
+                    embedding = RandomPrimitivesFactory.genRandomFloatArray(),
                 )
             every { clientV2.hasCollection(any()) } returns true
             every { clientV2.loadCollection(any()) } returns Unit
@@ -95,10 +95,10 @@ class IndexDocumentTest : BaseTest() {
         runTest {
             val document =
                 Document.SQLDocument(
-                    id = RandomsFactory.genRandomString(),
-                    sourceName = RandomsFactory.genRandomString(),
-                    dialect = RandomsFactory.genRandomString(),
-                    embedding = RandomsFactory.genRandomFloatList(),
+                    id = RandomPrimitivesFactory.genRandomString(),
+                    sourceName = RandomPrimitivesFactory.genRandomString(),
+                    dialect = RandomPrimitivesFactory.genRandomString(),
+                    embedding = RandomPrimitivesFactory.genRandomFloatArray(),
                 )
             val mockResponse =
                 InsertResp
@@ -121,10 +121,10 @@ class IndexDocumentTest : BaseTest() {
         runTest {
             val document =
                 Document.SQLDocument(
-                    id = RandomsFactory.genRandomString(),
-                    sourceName = RandomsFactory.genRandomString(),
-                    dialect = RandomsFactory.genRandomString(),
-                    embedding = RandomsFactory.genRandomFloatList(),
+                    id = RandomPrimitivesFactory.genRandomString(),
+                    sourceName = RandomPrimitivesFactory.genRandomString(),
+                    dialect = RandomPrimitivesFactory.genRandomString(),
+                    embedding = RandomPrimitivesFactory.genRandomFloatArray(),
                 )
             every { clientV2.hasCollection(any()) } returns false
             every { clientV2.createCollection(any()) } throws Exception()

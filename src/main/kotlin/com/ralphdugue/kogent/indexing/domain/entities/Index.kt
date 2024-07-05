@@ -14,11 +14,13 @@ interface Index {
 
     /**
      * This function searches the index for data that matches the query.
+     * @param sourceName The name of the collection to search.
      * @param query The query to search for.
      * @param topK The number of results to return.
      * @return The data that matches the query.
      */
     suspend fun searchIndex(
+        sourceName: String,
         query: FloatArray,
         topK: Int = 5,
     ): List<Document>

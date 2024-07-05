@@ -1,0 +1,3 @@
+package dataconnector.data.embedding
+
+class HuggingFaceEmbeddingModelTest

@@ -18,7 +18,7 @@ data class APIDataSource(
     val endpoint: String, // Specific API endpoint to query
     val method: HttpMethod, // HTTP method (GET, POST, etc.)
     val headers: Map<String, String>?, // Headers (optional)
-    val queryParams: Map<String, String>?, // Query parameters (optional)
+    val queryParams: Map<String, String>? = null, // Query parameters (optional)
     val body: String? = null,
 ) : DataSource {
     /**
@@ -29,9 +29,5 @@ data class APIDataSource(
         POST,
         PUT,
         DELETE,
-    }
-
-    override fun toString(): String {
-        TODO()
     }
 }

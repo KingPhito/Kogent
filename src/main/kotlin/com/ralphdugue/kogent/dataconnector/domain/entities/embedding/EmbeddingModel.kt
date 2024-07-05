@@ -1,12 +1,18 @@
 package com.ralphdugue.kogent.dataconnector.domain.entities.embedding
 
+import com.ralphdugue.kogent.dataconnector.domain.entities.api.APIDataSource
+
 interface EmbeddingModel {
-    suspend fun getEmbedding(text: String): List<FloatArray>
+    suspend fun getEmbedding(text: String): FloatArray
 }
 
 sealed interface EmbeddingConfig {
+    data class APIEmbeddingConfig(
+        val dataSource: APIDataSource,
+    ) : EmbeddingConfig
+
     data class HuggingFaceEmbeddingConfig(
-        val connectionString: String,
-        val credentials: List<Map<String, String>>,
+        val model: String = "all-MiniLM-L6-v2",
+        val apiToken: String,
     ) : EmbeddingConfig
 }
