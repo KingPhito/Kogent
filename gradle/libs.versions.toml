@@ -1,0 +1,50 @@
+[versions]
+kotlin = "2.0.0"
+kotlin-serialization = "1.7.1"
+kotlin-coroutines = "1.9.0-RC"
+ksp = "2.0.0-1.0.21"
+versionCatalogUpdate = "0.1.0"
+koin = "3.5.6"
+koin-annotations = "1.3.1"
+ktor = "2.3.12"
+junit = "5.10.2"
+dokka = "1.9.20"
+kache = "2.1.0"
+
+[libraries]
+# Kotlin
+kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlin-serialization" }
+
+# Kache
+kache = { module = "com.mayakapps.kache:kache", version.ref = "kache" }
+
+# Koin
+koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
+koin-annotations-bom = { module = "io.insert-koin:koin-annotations-bom", version.ref = "koin-annotations" }
+koin-ksp = { module = "io.insert-koin:koin-ksp-compiler", version.ref = "koin-annotations" }
+
+# Ktor
+ktor-client = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+
+# Test
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+test-junit-bom = { module = "org.junit:junit-bom", version = "5.10.2" }
+test-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlin-coroutines" }
+test-mockk = { module = "io.mockk:mockk", version = "1.13.10" }
+test-ktor-client = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
+
+[bundles]
+ktor = ["ktor-client", "ktor-client-cio", "ktor-client-content-negotiation", "ktor-serialization-json"]
+test = ["kotlin-test", "test-coroutines", "test-mockk", "test-ktor-client"]
+
+[plugins]
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+versionCatalogUpdate = { id = "nl.littlerobots.version-catalog-update", version.ref = "versionCatalogUpdate" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
