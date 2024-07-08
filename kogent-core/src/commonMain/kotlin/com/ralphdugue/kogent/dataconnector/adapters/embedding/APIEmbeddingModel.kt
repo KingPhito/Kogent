@@ -8,7 +8,7 @@ class APIEmbeddingModel(
     private val config: EmbeddingConfig.APIEmbeddingConfig,
     private val client: HttpClient,
 ) : EmbeddingModel {
-    override suspend fun getEmbedding(text: String): FloatArray {
+    override suspend fun getEmbedding(text: String): List<Float> {
         TODO("Not yet implemented")
     }
 }

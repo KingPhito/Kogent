@@ -8,6 +8,7 @@ import com.ralphdugue.kogent.dataconnector.domain.entities.sql.SQLDataSource
 import com.ralphdugue.kogent.dataconnector.domain.entities.sql.SQLDataSource.DatabaseType
 import com.ralphdugue.kogent.indexing.domain.entities.Document
 import com.ralphdugue.kogent.indexing.domain.entities.Index
+import com.ralphdugue.kogent.retrieval.domain.entities.DataSourceRegistry
 import com.zaxxer.hikari.HikariDataSource
 import java.sql.Connection
 import java.sql.ResultSet
@@ -15,11 +16,13 @@ import java.sql.ResultSet
 actual fun buildSQLDataConnector(
     embeddingModel: EmbeddingModel,
     index: Index,
-): SQLDataConnector = KogentSQLDataConnector(embeddingModel, index)
+    dataSourceRegistry: DataSourceRegistry,
+): SQLDataConnector = KogentSQLDataConnector(embeddingModel, index, dataSourceRegistry)
 
 class KogentSQLDataConnector(
     private val embeddingModel: EmbeddingModel,
     private val index: Index,
+    private val dataSourceRegistry: DataSourceRegistry,
 ) : SQLDataConnector {
     override suspend fun indexData(dataSource: DataSource): Boolean {
         val schemaQuery = fetchSchema(dataSource as SQLDataSource)

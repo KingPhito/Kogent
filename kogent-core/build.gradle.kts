@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.ralphdugue.kogent"
-version = "1.0-SNAPSHOT"
+version = "0.1-SNAPSHOT"
 
 kotlin {
     jvm {
@@ -24,12 +24,8 @@ kotlin {
                 implementation(libs.bundles.ktor)
                 implementation(libs.kache)
             }
-            kotlin.srcDir("../build/generated/ksp/main/kotlin")
         }
-        val commonTest by getting {
-            dependencies {
-            }
-        }
+        val commonTest by getting
         val jvmMain by getting {
             dependencies {
                 implementation("com.zaxxer:HikariCP:5.1.0")
@@ -53,6 +49,7 @@ kotlin {
 
 dependencies {
     add("kspCommonMainMetadata", libs.koin.ksp)
+    add("kspJvm", libs.koin.ksp)
 }
 
 tasks.withType<Test> {

@@ -12,6 +12,7 @@ import com.ralphdugue.kogent.indexing.utils.IndexFactory
 import com.ralphdugue.kogent.query.adapters.HuggingFaceLLModel
 import com.ralphdugue.kogent.query.domain.entities.LLModel
 import com.ralphdugue.kogent.query.domain.entities.LLModelConfig
+import com.ralphdugue.kogent.retrieval.domain.entities.DataSourceRegistry
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpTimeout
@@ -63,5 +64,6 @@ class KogentModule {
     fun provideSQLDataConnector(
         embeddingModel: EmbeddingModel,
         index: Index,
-    ): SQLDataConnector = buildSQLDataConnector(embeddingModel, index)
+        dataSourceRegistry: DataSourceRegistry,
+    ): SQLDataConnector = buildSQLDataConnector(embeddingModel, index, dataSourceRegistry)
 }
