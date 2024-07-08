@@ -1,4 +1,4 @@
-package data.connectors
+package dataconnector.connectors
 
 import com.ralphdugue.kogent.dataconnector.adapters.connectors.KogentSQLDataConnector
 import com.ralphdugue.kogent.dataconnector.domain.entities.api.APIDataSource

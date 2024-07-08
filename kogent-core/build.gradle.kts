@@ -14,15 +14,19 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(project.dependencies.platform(libs.koin.bom))
-                implementation(project.dependencies.platform(libs.koin.annotations.bom))
-                implementation("io.insert-koin:koin-core")
-                implementation("io.insert-koin:koin-core-coroutines")
-                implementation("io.insert-koin:koin-annotations")
+                api(project.dependencies.platform(libs.koin.bom))
+                api(project.dependencies.platform(libs.koin.annotations.bom))
+                api("io.insert-koin:koin-core")
+                api("io.insert-koin:koin-core-coroutines")
+                api("io.insert-koin:koin-annotations")
                 implementation(libs.kotlinx.coroutines)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.bundles.ktor)
                 implementation(libs.kache)
+                api(project.dependencies.platform(libs.test.junit.bom))
+                api("org.junit.jupiter:junit-jupiter")
+                runtimeOnly("org.junit.platform:junit-platform-launcher")
+                api(libs.bundles.test)
             }
         }
         val commonTest by getting
@@ -36,20 +40,12 @@ kotlin {
                 implementation("org.slf4j:slf4j-api:2.0.12")
             }
         }
-        val jvmTest by getting {
-            dependencies {
-                implementation(project.dependencies.platform(libs.test.junit.bom))
-                implementation("org.junit.jupiter:junit-jupiter")
-                runtimeOnly("org.junit.platform:junit-platform-launcher")
-                implementation(libs.bundles.test)
-            }
-        }
+        val jvmTest by getting
     }
 }
 
 dependencies {
     add("kspCommonMainMetadata", libs.koin.ksp)
-    add("kspJvm", libs.koin.ksp)
 }
 
 tasks.withType<Test> {

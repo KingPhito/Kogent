@@ -1,4 +1,4 @@
-package data.embedding
+package dataconnector.embedding
 
 import com.ralphdugue.kogent.dataconnector.adapters.embedding.HuggingFaceEmbeddingModel
 import common.BaseTest

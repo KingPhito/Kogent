@@ -1,4 +1,4 @@
-package milvus
+package indexing.milvus
 
 import com.ralphdugue.kogent.indexing.adapters.MilvusIndex
 import com.ralphdugue.kogent.indexing.domain.entities.Document

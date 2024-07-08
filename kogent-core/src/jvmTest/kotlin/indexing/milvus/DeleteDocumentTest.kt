@@ -1,4 +1,4 @@
-package milvus
+package indexing.milvus
 
 import com.ralphdugue.kogent.indexing.adapters.MilvusIndex
 import com.ralphdugue.kogent.indexing.domain.entities.Document
@@ -6,10 +6,9 @@ import com.ralphdugue.kogent.indexing.domain.entities.IndexConfig
 import com.ralphdugue.kogent.indexing.domain.entities.VectorStoreOptions
 import common.BaseTest
 import io.milvus.v2.client.MilvusClientV2
-import io.milvus.v2.service.vector.response.UpsertResp
+import io.milvus.v2.service.vector.response.DeleteResp
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -20,7 +19,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class UpdateDocumentTest : BaseTest() {
+class DeleteDocumentTest : BaseTest() {
     @MockK
     private lateinit var clientV2: MilvusClientV2
     private lateinit var subject: MilvusIndex
@@ -46,7 +45,7 @@ class UpdateDocumentTest : BaseTest() {
     }
 
     @Test
-    fun `updateDocument should return true when document is updated successfully`() =
+    fun `deleteDocument should return true when document is deleted successfully`() =
         runTest {
             val document =
                 Document.SQLDocument(
@@ -55,16 +54,14 @@ class UpdateDocumentTest : BaseTest() {
                     dialect = RandomPrimitivesFactory.genRandomString(),
                     embedding = RandomPrimitivesFactory.genRandomFloatArray(),
                 )
-            val mockResponse = UpsertResp.builder().upsertCnt(1).build()
-            every { clientV2.upsert(any()) } returns mockResponse
-
-            val result = subject.updateDocument(document)
+            val mockResponse = DeleteResp.builder().deleteCnt(1).build()
+            every { clientV2.delete(any()) } returns mockResponse
+            val result = subject.deleteDocument(document)
             assertEquals(true, result)
-            verify(exactly = 1) { clientV2.upsert(any()) }
         }
 
     @Test
-    fun `updateDocument should return false when document is not updated successfully`() =
+    fun `deleteDocument should return false when document is not deleted successfully`() =
         runTest {
             val document =
                 Document.SQLDocument(
@@ -73,10 +70,9 @@ class UpdateDocumentTest : BaseTest() {
                     dialect = RandomPrimitivesFactory.genRandomString(),
                     embedding = RandomPrimitivesFactory.genRandomFloatArray(),
                 )
-            every { clientV2.upsert(any()) } throws Exception()
-
-            val result = subject.updateDocument(document)
+            val mockResponse = DeleteResp.builder().deleteCnt(0).build()
+            every { clientV2.delete(any()) } returns mockResponse
+            val result = subject.deleteDocument(document)
             assertEquals(false, result)
-            verify(exactly = 1) { clientV2.upsert(any()) }
         }
 }
