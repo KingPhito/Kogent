@@ -1,4 +1,4 @@
-<p style="text-align: center;">
+<p align="center">
   <img src="./docs/images/logo.png" alt="Kogent Logo" width="200"/>
 </p>
 
