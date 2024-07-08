@@ -1,6 +1,4 @@
-package com.ralphdugue.kogent.retrieval.domain.entities
-
-import com.ralphdugue.kogent.dataconnector.domain.entities.DataSource
+package com.ralphdugue.kogent.dataconnector.domain.entities
 
 /**
  * This interface is used to register and retrieve data sources that were added to the Kogent system.

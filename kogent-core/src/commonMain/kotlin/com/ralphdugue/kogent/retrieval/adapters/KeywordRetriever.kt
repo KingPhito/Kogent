@@ -1,10 +1,10 @@
 package com.ralphdugue.kogent.retrieval.adapters
 
 import com.ralphdugue.kogent.dataconnector.domain.entities.DataSource
+import com.ralphdugue.kogent.dataconnector.domain.entities.DataSourceRegistry
 import com.ralphdugue.kogent.dataconnector.domain.entities.embedding.EmbeddingModel
 import com.ralphdugue.kogent.indexing.domain.entities.Document
 import com.ralphdugue.kogent.indexing.domain.entities.Index
-import com.ralphdugue.kogent.retrieval.domain.entities.DataSourceRegistry
 import com.ralphdugue.kogent.retrieval.domain.entities.Retriever
 import org.koin.core.annotation.Single
 
@@ -24,7 +24,7 @@ class KeywordRetriever(
         return buildContext(query, documents)
     }
 
-    private fun selectDataSource(query: String): DataSource {
+    private suspend fun selectDataSource(query: String): DataSource {
         val lowercaseQuery = query.lowercase()
         val dataSources = dataSourceRegistry.getDataSources()
         for (dataSource in dataSources) {

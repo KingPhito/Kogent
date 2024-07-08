@@ -52,6 +52,7 @@ class DeleteDocumentTest : BaseTest() {
                     id = RandomPrimitivesFactory.genRandomString(),
                     sourceName = RandomPrimitivesFactory.genRandomString(),
                     dialect = RandomPrimitivesFactory.genRandomString(),
+                    schema = RandomPrimitivesFactory.genRandomString(),
                     embedding = RandomPrimitivesFactory.genRandomFloatArray(),
                 )
             val mockResponse = DeleteResp.builder().deleteCnt(1).build()
@@ -68,6 +69,7 @@ class DeleteDocumentTest : BaseTest() {
                     id = RandomPrimitivesFactory.genRandomString(),
                     sourceName = RandomPrimitivesFactory.genRandomString(),
                     dialect = RandomPrimitivesFactory.genRandomString(),
+                    schema = RandomPrimitivesFactory.genRandomString(),
                     embedding = RandomPrimitivesFactory.genRandomFloatArray(),
                 )
             val mockResponse = DeleteResp.builder().deleteCnt(0).build()
