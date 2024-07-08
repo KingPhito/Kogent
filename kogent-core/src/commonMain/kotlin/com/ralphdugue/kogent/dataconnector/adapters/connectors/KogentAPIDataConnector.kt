@@ -1,11 +1,11 @@
 package com.ralphdugue.kogent.dataconnector.adapters.connectors
 
 import com.ralphdugue.kogent.dataconnector.domain.entities.DataSource
+import com.ralphdugue.kogent.dataconnector.domain.entities.DataSourceRegistry
 import com.ralphdugue.kogent.dataconnector.domain.entities.api.APIDataConnector
 import com.ralphdugue.kogent.dataconnector.domain.entities.api.KogentAPIResponse
 import com.ralphdugue.kogent.dataconnector.domain.entities.embedding.EmbeddingModel
 import com.ralphdugue.kogent.indexing.domain.entities.Document
-import com.ralphdugue.kogent.retrieval.domain.entities.DataSourceRegistry
 import io.ktor.client.HttpClient
 import org.koin.core.annotation.Single
 

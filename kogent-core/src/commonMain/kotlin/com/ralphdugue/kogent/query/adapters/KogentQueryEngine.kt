@@ -1,8 +1,10 @@
-package com.ralphdugue.kogent.query.domain.entities
+package com.ralphdugue.kogent.query.adapters
 
 import com.ralphdugue.kogent.dataconnector.domain.entities.DataSource
 import com.ralphdugue.kogent.dataconnector.domain.entities.api.APIDataConnector
 import com.ralphdugue.kogent.dataconnector.domain.entities.sql.SQLDataConnector
+import com.ralphdugue.kogent.query.domain.entities.LLModel
+import com.ralphdugue.kogent.query.domain.entities.QueryEngine
 import com.ralphdugue.kogent.retrieval.domain.entities.Retriever
 import org.koin.core.annotation.Single
 

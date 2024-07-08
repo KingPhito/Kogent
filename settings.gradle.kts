@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Kogent"
 include("kogent-core")
-include("example")
+include("jvmExample")

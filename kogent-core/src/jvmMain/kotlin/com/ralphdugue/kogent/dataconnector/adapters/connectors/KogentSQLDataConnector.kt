@@ -1,6 +1,7 @@
 package com.ralphdugue.kogent.dataconnector.adapters.connectors
 
 import com.ralphdugue.kogent.dataconnector.domain.entities.DataSource
+import com.ralphdugue.kogent.dataconnector.domain.entities.DataSourceRegistry
 import com.ralphdugue.kogent.dataconnector.domain.entities.embedding.EmbeddingModel
 import com.ralphdugue.kogent.dataconnector.domain.entities.sql.QueryResult
 import com.ralphdugue.kogent.dataconnector.domain.entities.sql.SQLDataConnector
@@ -8,7 +9,6 @@ import com.ralphdugue.kogent.dataconnector.domain.entities.sql.SQLDataSource
 import com.ralphdugue.kogent.dataconnector.domain.entities.sql.SQLDataSource.DatabaseType
 import com.ralphdugue.kogent.indexing.domain.entities.Document
 import com.ralphdugue.kogent.indexing.domain.entities.Index
-import com.ralphdugue.kogent.retrieval.domain.entities.DataSourceRegistry
 import com.zaxxer.hikari.HikariDataSource
 import java.sql.Connection
 import java.sql.ResultSet

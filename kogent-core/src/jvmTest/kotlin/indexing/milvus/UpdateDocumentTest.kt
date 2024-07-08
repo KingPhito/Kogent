@@ -53,6 +53,7 @@ class UpdateDocumentTest : BaseTest() {
                     id = RandomPrimitivesFactory.genRandomString(),
                     sourceName = RandomPrimitivesFactory.genRandomString(),
                     dialect = RandomPrimitivesFactory.genRandomString(),
+                    schema = RandomPrimitivesFactory.genRandomString(),
                     embedding = RandomPrimitivesFactory.genRandomFloatArray(),
                 )
             val mockResponse = UpsertResp.builder().upsertCnt(1).build()
@@ -71,6 +72,7 @@ class UpdateDocumentTest : BaseTest() {
                     id = RandomPrimitivesFactory.genRandomString(),
                     sourceName = RandomPrimitivesFactory.genRandomString(),
                     dialect = RandomPrimitivesFactory.genRandomString(),
+                    schema = RandomPrimitivesFactory.genRandomString(),
                     embedding = RandomPrimitivesFactory.genRandomFloatArray(),
                 )
             every { clientV2.upsert(any()) } throws Exception()

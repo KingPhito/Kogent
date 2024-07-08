@@ -1,6 +1,7 @@
 package dataconnector.connectors
 
 import com.ralphdugue.kogent.dataconnector.adapters.connectors.KogentSQLDataConnector
+import com.ralphdugue.kogent.dataconnector.domain.entities.DataSourceRegistry
 import com.ralphdugue.kogent.dataconnector.domain.entities.api.APIDataSource
 import com.ralphdugue.kogent.dataconnector.domain.entities.embedding.EmbeddingModel
 import com.ralphdugue.kogent.dataconnector.domain.entities.sql.QueryResult
@@ -29,6 +30,9 @@ class SQLDataConnectorTest : BaseTest() {
     @MockK
     private lateinit var index: Index
 
+    @MockK
+    private lateinit var dataSourceRegistry: DataSourceRegistry
+
     private lateinit var subject: SQLDataConnector
     private val dbName: String = "DB_${RandomPrimitivesFactory.genRandomString()}"
     private val dbUser: String = RandomPrimitivesFactory.genRandomString()
@@ -41,7 +45,7 @@ class SQLDataConnectorTest : BaseTest() {
         Dispatchers.setMain(mainCoroutineDispatcher)
         coEvery { embeddingModel.getEmbedding(any()) } returns RandomPrimitivesFactory.genRandomFloatArray()
         coEvery { index.indexDocument(any()) } returns true
-        subject = KogentSQLDataConnector(embeddingModel, index)
+        subject = KogentSQLDataConnector(embeddingModel, index, dataSourceRegistry)
         dbConnection = FakeDatabaseFactory.createFakeDatabase(dbName, dbUser, dbPassword)
         FakeDatabaseFactory.createTestTable(
             connection = dbConnection,

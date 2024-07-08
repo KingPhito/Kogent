@@ -53,6 +53,7 @@ class IndexDocumentTest : BaseTest() {
                     id = RandomPrimitivesFactory.genRandomString(),
                     sourceName = RandomPrimitivesFactory.genRandomString(),
                     dialect = RandomPrimitivesFactory.genRandomString(),
+                    schema = RandomPrimitivesFactory.genRandomString(),
                     embedding = RandomPrimitivesFactory.genRandomFloatArray(),
                 )
             val mockResponse =
@@ -78,6 +79,7 @@ class IndexDocumentTest : BaseTest() {
                     id = RandomPrimitivesFactory.genRandomString(),
                     sourceName = RandomPrimitivesFactory.genRandomString(),
                     dialect = RandomPrimitivesFactory.genRandomString(),
+                    schema = RandomPrimitivesFactory.genRandomString(),
                     embedding = RandomPrimitivesFactory.genRandomFloatArray(),
                 )
             every { clientV2.hasCollection(any()) } returns true
@@ -98,6 +100,7 @@ class IndexDocumentTest : BaseTest() {
                     id = RandomPrimitivesFactory.genRandomString(),
                     sourceName = RandomPrimitivesFactory.genRandomString(),
                     dialect = RandomPrimitivesFactory.genRandomString(),
+                    schema = RandomPrimitivesFactory.genRandomString(),
                     embedding = RandomPrimitivesFactory.genRandomFloatArray(),
                 )
             val mockResponse =
@@ -124,6 +127,7 @@ class IndexDocumentTest : BaseTest() {
                     id = RandomPrimitivesFactory.genRandomString(),
                     sourceName = RandomPrimitivesFactory.genRandomString(),
                     dialect = RandomPrimitivesFactory.genRandomString(),
+                    schema = RandomPrimitivesFactory.genRandomString(),
                     embedding = RandomPrimitivesFactory.genRandomFloatArray(),
                 )
             every { clientV2.hasCollection(any()) } returns false
