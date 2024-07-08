@@ -123,7 +123,7 @@ class MilvusIndex(
         val sourceName = searchResult.entity["sourceName"] as String
         val sourceType = searchResult.entity["sourceType"] as String
         val id = searchResult.id as String
-        val embedding = (searchResult.entity["embedding"] as List<Float>)
+        val embedding = searchResult.entity["embedding"] as List<Float>
         return when (sourceType) {
             "SQL" -> {
                 val dialect = searchResult.entity["dialect"] as String

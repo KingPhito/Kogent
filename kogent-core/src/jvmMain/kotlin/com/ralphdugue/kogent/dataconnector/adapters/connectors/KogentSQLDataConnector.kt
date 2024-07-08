@@ -29,6 +29,9 @@ class KogentSQLDataConnector(
         val tableQuery = fetchData(dataSource)
         val tableDocument = createDocument(tableQuery, schemaQuery, dataSource)
         val tableIndexed = index.indexDocument(tableDocument)
+        if (tableIndexed) {
+            dataSourceRegistry.registerDataSource(dataSource)
+        }
         return tableIndexed
     }
 

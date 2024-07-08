@@ -11,7 +11,7 @@ interface DataSourceRegistry {
      * Returns a list of all the data sources that were added to the Kogent system.
      * @return a list of [DataSource] objects
      */
-    fun getDataSources(): List<DataSource>
+    suspend fun getDataSources(): List<DataSource>
 
-    fun registerDataSource(dataSource: DataSource)
+    suspend fun registerDataSource(dataSource: DataSource)
 }

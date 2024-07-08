@@ -10,6 +10,7 @@ import com.ralphdugue.kogent.dataconnector.domain.entities.DataSource
  * @param databaseName The name of the SQL database.
  * @param username The username to use to connect to the SQL database.
  * @param password The password to use to connect to the SQL database.
+ * @param query The query to execute on the SQL database.(optional)
  */
 data class SQLDataSource(
     override val identifier: String,
