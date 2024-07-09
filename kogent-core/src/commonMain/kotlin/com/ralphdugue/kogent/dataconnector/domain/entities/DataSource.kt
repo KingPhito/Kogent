@@ -1,8 +1,12 @@
 package com.ralphdugue.kogent.dataconnector.domain.entities
 
 /**
- * This is the interface for all DataSources to inherit from.
- * DataSources are classes that represent anything from an SQL database to a REST API.
+ * A data source.
+ *
+ * Users provide data sources to the Kogent system. These data sources can be of different types,
+ * such as SQL databases, CSV files, or other data sources. They are used to build context
+ * for the Kogent system to make queries with.
+ * @author Ralph Dugue
  */
 interface DataSource {
     /**

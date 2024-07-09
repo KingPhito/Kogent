@@ -4,7 +4,7 @@ import com.ralphdugue.kogent.dataconnector.domain.entities.embedding.EmbeddingCo
 import com.ralphdugue.kogent.dataconnector.domain.entities.embedding.EmbeddingModel
 import io.ktor.client.HttpClient
 
-class APIEmbeddingModel(
+internal class APIEmbeddingModel(
     private val config: EmbeddingConfig.APIEmbeddingConfig,
     private val client: HttpClient,
 ) : EmbeddingModel {

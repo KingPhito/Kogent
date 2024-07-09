@@ -3,7 +3,9 @@ package com.ralphdugue.kogent.dataconnector.domain.entities.api
 import com.ralphdugue.kogent.dataconnector.domain.entities.DataSource
 
 /**
- * This class represents a REST data source.
+ * A REST API data source.
+ *
+ * This data source is used to query a REST API.
  * @param identifier The identifier of the data source.
  * @param baseUrl The base URL of the API.
  * @param endpoint The endpoint to query.
@@ -29,5 +31,25 @@ data class APIDataSource(
         POST,
         PUT,
         DELETE,
+    }
+}
+
+class ApiDataSourceBuilder {
+    var identifier: String? = null
+    var baseUrl: String? = null
+    var endpoint: String? = null
+    var method: APIDataSource.HttpMethod? = null
+    var headers: Map<String, String>? = null
+    var queryParams: Map<String, String>? = null
+    var body: Map<String, String>? = null
+
+    fun build(): APIDataSource {
+        // Check for required parameters
+        val id = identifier ?: throw IllegalArgumentException("Identifier must be provided")
+        val url = baseUrl ?: throw IllegalArgumentException("Base URL must be provided")
+        val end = endpoint ?: throw IllegalArgumentException("Endpoint must be provided")
+        val meth = method ?: throw IllegalArgumentException("HTTP method must be provided")
+
+        return APIDataSource(id, url, end, meth, headers, queryParams, body)
     }
 }

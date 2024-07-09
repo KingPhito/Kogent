@@ -8,7 +8,7 @@ import com.ralphdugue.kogent.dataconnector.domain.entities.embedding.EmbeddingMo
 import io.ktor.client.HttpClient
 import kotlinx.serialization.json.Json
 
-class HuggingFaceEmbeddingModel(
+internal class HuggingFaceEmbeddingModel(
     private val config: EmbeddingConfig.HuggingFaceEmbeddingConfig,
     private val client: HttpClient,
 ) : EmbeddingModel {

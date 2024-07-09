@@ -1,15 +1,21 @@
 [versions]
+h2 = "2.2.224"
+hikaricp = "5.1.0"
+json = "20231013"
 kotlin = "2.0.0"
 kotlin-serialization = "1.7.1"
 kotlin-coroutines = "1.9.0-RC"
 ksp = "2.0.0-1.0.21"
+milvusSdkJava = "2.4.0"
+postgresql = "42.7.3"
+slf4jApi = "2.0.13"
 versionCatalogUpdate = "0.8.1"
 koin = "3.5.6"
 koin-annotations = "1.3.1"
 ktor = "2.3.12"
 junit = "5.10.2"
 dokka = "1.9.20"
-kache = "2.1.0"
+sqlDelight = "2.0.2"
 androidGradlePlugin = "8.5.0"
 android-compileSdk = "34"
 android-minSdk = "24"
@@ -17,11 +23,21 @@ android-targetSdk = "34"
 
 [libraries]
 # Kotlin
+h2 = { module = "com.h2database:h2", version.ref = "h2" }
+hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
+json = { module = "org.json:json", version.ref = "json" }
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlin-serialization" }
 
-# Kache
-kache = { module = "com.mayakapps.kache:kache", version.ref = "kache" }
+# JVM
+milvus-sdk-java = { module = "io.milvus:milvus-sdk-java", version.ref = "milvusSdkJava" }
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4jApi" }
+
+# SQLDelight
+sqlDelight-android = { module = "app.cash.sqldelight:android-driver", version.ref = "sqlDelight" }
+sqlDelight-native = { module = "app.cash.sqldelight:native-driver", version.ref = "sqlDelight" }
+sqlDelight-jvm = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqlDelight" }
 
 # Koin
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
@@ -54,3 +70,4 @@ versionCatalogUpdate = { id = "nl.littlerobots.version-catalog-update", version.
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 androidApplication = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 androidLibrary = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+sqldelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }

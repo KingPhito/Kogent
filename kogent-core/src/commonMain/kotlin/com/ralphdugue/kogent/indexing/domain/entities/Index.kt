@@ -1,7 +1,8 @@
 package com.ralphdugue.kogent.indexing.domain.entities
 
 /**
- * This is the interface for all Indexes to inherit from.
+ * An Index
+ *
  * An Index stores data from a [Document] in a way that makes it easy to search and retrieve.
  */
 interface Index {
