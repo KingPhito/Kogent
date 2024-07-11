@@ -10,6 +10,7 @@ object FakeDocumentFactory {
             id = genRandomString(),
             sourceName = sourceName ?: genRandomString(),
             dialect = genRandomString(),
+            schema = genRandomString(),
             embedding = genRandomFloatArray(),
         )
 

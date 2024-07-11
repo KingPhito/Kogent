@@ -1,14 +1,14 @@
 package com.ralphdugue.kogent.config
 
-import com.ralphdugue.kogent.dataconnector.domain.entities.DataSource
-import com.ralphdugue.kogent.dataconnector.domain.entities.EmbeddedRegistry
-import com.ralphdugue.kogent.dataconnector.domain.entities.ExternalRegistryBuilder
-import com.ralphdugue.kogent.dataconnector.domain.entities.RegistryType
-import com.ralphdugue.kogent.dataconnector.domain.entities.api.ApiDataSourceBuilder
-import com.ralphdugue.kogent.dataconnector.domain.entities.embedding.APIEmbeddingModelConfigBuilder
-import com.ralphdugue.kogent.dataconnector.domain.entities.embedding.EmbeddingConfig
-import com.ralphdugue.kogent.dataconnector.domain.entities.embedding.HuggingFaceEmbeddingModelConfigBuilder
-import com.ralphdugue.kogent.dataconnector.domain.entities.sql.SQLDataSourceBuilder
+import com.ralphdugue.kogent.data.domain.entities.DataSource
+import com.ralphdugue.kogent.data.domain.entities.LocalRegistry
+import com.ralphdugue.kogent.data.domain.entities.ExternalRegistryBuilder
+import com.ralphdugue.kogent.data.domain.entities.RegistryType
+import com.ralphdugue.kogent.data.domain.entities.api.ApiDataSourceBuilder
+import com.ralphdugue.kogent.data.domain.entities.embedding.APIEmbeddingModelConfigBuilder
+import com.ralphdugue.kogent.data.domain.entities.embedding.EmbeddingConfig
+import com.ralphdugue.kogent.data.domain.entities.embedding.HuggingFaceEmbeddingModelConfigBuilder
+import com.ralphdugue.kogent.data.domain.entities.sql.SQLDataSourceBuilder
 import com.ralphdugue.kogent.indexing.domain.entities.IndexConfig
 import com.ralphdugue.kogent.indexing.domain.entities.VectorStoreConfigBuilder
 import com.ralphdugue.kogent.query.domain.entities.HuggingFaceLLModelConfigBuilder
@@ -23,14 +23,14 @@ import com.ralphdugue.kogent.query.domain.entities.LLModelConfig
  * @param llModelConfig The model configuration.
  * @param indexConfig The index configuration.
  * @param embeddingConfig The embedding configuration.
- * @param registryType The type of registry to use. Default is [EmbeddedRegistry].
+ * @param registryType The type of registry to use. Default is [LocalRegistry].
  */
 data class KogentConfig(
     val dataSources: List<DataSource>,
     val llModelConfig: LLModelConfig,
     val indexConfig: IndexConfig,
     val embeddingConfig: EmbeddingConfig,
-    val registryType: RegistryType = EmbeddedRegistry,
+    val registryType: RegistryType = LocalRegistry,
 )
 
 /**
@@ -41,7 +41,7 @@ class KogentConfigBuilder {
     private var llModelConfig: LLModelConfig? = null
     private var indexConfig: IndexConfig? = null
     private var embeddingConfig: EmbeddingConfig? = null
-    private var registryType: RegistryType = EmbeddedRegistry
+    private var registryType: RegistryType = LocalRegistry
 
     fun sqlDataSource(block: SQLDataSourceBuilder.() -> Unit) {
         dataSources.add(SQLDataSourceBuilder().apply(block).build())

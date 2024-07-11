@@ -1,0 +1,10 @@
+CREATE TABLE DataSources (
+    identifier TEXT
+);
+
+insertDataSource:
+INSERT INTO DataSources(identifier)
+VALUES(?);
+
+selectAllDataSources:
+SELECT * FROM DataSources;

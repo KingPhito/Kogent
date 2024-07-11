@@ -1,8 +1,7 @@
 package com.ralphdugue.kogent.retrieval.adapters
 
-import com.ralphdugue.kogent.dataconnector.domain.entities.DataSource
-import com.ralphdugue.kogent.dataconnector.domain.entities.DataSourceRegistry
-import com.ralphdugue.kogent.dataconnector.domain.entities.embedding.EmbeddingModel
+import com.ralphdugue.kogent.data.domain.entities.DataSourceRegistry
+import com.ralphdugue.kogent.data.domain.entities.embedding.EmbeddingModel
 import com.ralphdugue.kogent.indexing.domain.entities.Document
 import com.ralphdugue.kogent.indexing.domain.entities.Index
 import com.ralphdugue.kogent.retrieval.domain.entities.Retriever
@@ -15,20 +14,20 @@ class KeywordRetriever(
     private val dataSourceRegistry: DataSourceRegistry,
 ) : Retriever {
     override suspend fun retrieve(query: String): String {
-        val dataSource = selectDataSource(query)
+        val sourceName = selectDataSource(query)
         val documents =
             index.searchIndex(
-                sourceName = dataSource.identifier,
+                sourceName = sourceName,
                 query = embeddingModel.getEmbedding(query),
             )
         return buildContext(query, documents)
     }
 
-    private suspend fun selectDataSource(query: String): DataSource {
+    private suspend fun selectDataSource(query: String): String {
         val lowercaseQuery = query.lowercase()
         val dataSources = dataSourceRegistry.getDataSources()
         for (dataSource in dataSources) {
-            if (lowercaseQuery.contains(dataSource.identifier.lowercase())) {
+            if (lowercaseQuery.contains(dataSource.lowercase())) {
                 return dataSource
             }
         }

@@ -42,10 +42,10 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                api(project.dependencies.platform(libs.test.junit.bom))
-                api("org.junit.jupiter:junit-jupiter")
+                implementation(project.dependencies.platform(libs.test.junit.bom))
+                implementation("org.junit.jupiter:junit-jupiter")
                 runtimeOnly("org.junit.platform:junit-platform-launcher")
-                api(libs.bundles.test)
+                implementation(libs.bundles.test)
             }
         }
         val jvmMain by getting {
@@ -54,18 +54,38 @@ kotlin {
                 implementation(libs.h2)
                 implementation(libs.postgresql)
                 implementation(libs.milvus.sdk.java)
-                implementation(libs.json)
                 implementation(libs.slf4j.api)
                 implementation(libs.sqlDelight.jvm)
             }
         }
-        val jvmTest by getting
+        val jvmTest by getting {
+            dependencies {
+                implementation(project.dependencies.platform(libs.test.junit.bom))
+                implementation("org.junit.jupiter:junit-jupiter")
+                runtimeOnly("org.junit.platform:junit-platform-launcher")
+                implementation(libs.bundles.test)
+            }
+        }
         val androidMain by getting {
             dependencies {
+                implementation(libs.hikaricp)
+                implementation(libs.h2)
+                implementation(libs.postgresql)
+                implementation(libs.milvus.sdk.java)
+                implementation(libs.slf4j.api)
                 implementation(libs.sqlDelight.android)
+                implementation("io.insert-koin:koin-android")
             }
         }
         val androidUnitTest by getting
+    }
+}
+
+sqldelight {
+    databases {
+        create("DataSourceRegistryDB") {
+            packageName.set("com.ralphdugue.kogent.cache")
+        }
     }
 }
 
@@ -91,7 +111,9 @@ android {
 
 dependencies {
     add("kspCommonMainMetadata", libs.koin.ksp)
+    //add("kspAndroid", libs.koin.ksp)
 }
+
 
 tasks.withType<Test> {
     useJUnitPlatform()

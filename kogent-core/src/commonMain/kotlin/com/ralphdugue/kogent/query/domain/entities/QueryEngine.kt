@@ -1,6 +1,6 @@
 package com.ralphdugue.kogent.query.domain.entities
 
-import com.ralphdugue.kogent.dataconnector.domain.entities.DataSource
+import com.ralphdugue.kogent.data.domain.entities.DataSource
 
 interface QueryEngine {
     suspend fun sendUserQuery(query: String): String

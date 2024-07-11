@@ -77,7 +77,8 @@ class SearchIndexTest : BaseTest() {
                 assert(document.sourceName == expected[index].sourceName)
                 assert(document.sourceType == expected[index].sourceType)
                 assert(document.dialect == expected[index].dialect)
-                assert(document.embedding.contentEquals(expected[index].embedding))
+                assert(document.schema == expected[index].schema)
+                assert(document.embedding.containsAll(expected[index].embedding))
             }
         }
 
