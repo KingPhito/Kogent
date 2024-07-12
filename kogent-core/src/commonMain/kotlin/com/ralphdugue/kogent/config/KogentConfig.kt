@@ -24,6 +24,7 @@ import com.ralphdugue.kogent.query.domain.entities.LLModelConfig
  * @param indexConfig The index configuration.
  * @param embeddingConfig The embedding configuration.
  * @param registryType The type of registry to use. Default is [LocalRegistry].
+ * @author Ralph Dugue
  */
 data class KogentConfig(
     val dataSources: List<DataSource>,
@@ -34,7 +35,7 @@ data class KogentConfig(
 )
 
 /**
- * A builder for the Kogent configuration.
+ * A builder for the [KogentConfig].
  */
 class KogentConfigBuilder {
     private var dataSources: MutableList<DataSource> = mutableListOf()

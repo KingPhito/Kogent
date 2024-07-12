@@ -13,7 +13,7 @@ interface SQLDataConnector : DataConnector<QueryResult> {
      * @param dataSource The data source to fetch data from.
      * @return The result of the query.
      */
-    suspend fun fetchData(dataSource: DataSource): QueryResult.TableQuery
+    suspend fun readQuery(dataSource: DataSource): QueryResult.TableQuery
 
     /**
      * This function updates the data of an SQL data source.
@@ -21,15 +21,8 @@ interface SQLDataConnector : DataConnector<QueryResult> {
      * @param query The query to update the data.
      * @return The result of the query.
      */
-    suspend fun updateData(
+    suspend fun writeQuery(
         dataSource: SQLDataSource,
         query: String,
     ): QueryResult
-
-    /**
-     * This function fetches the schema of an SQL data source.
-     * @param dataSource The data source to fetch the schema from.
-     * @return The schema of the data source.
-     */
-    suspend fun fetchSchema(dataSource: SQLDataSource): QueryResult.SchemaQuery
 }

@@ -18,18 +18,18 @@ interface LLModel {
 
 sealed interface LLModelConfig {
     data class HuggingFaceLLModelConfig(
-        val connectionString: String,
-        val credentials: List<Map<String, String>>,
+        val model: String = "all-MiniLM-L6-v2",
+        val apiToken: String,
     ) : LLModelConfig
 }
 
 class HuggingFaceLLModelConfigBuilder {
-    var connectionString: String? = null
-    var credentials: List<Map<String, String>> = emptyList()
+    var model: String = "all-MiniLM-L6-v2"
+    var apiToken: String? = null
 
     fun build(): LLModelConfig.HuggingFaceLLModelConfig =
         LLModelConfig.HuggingFaceLLModelConfig(
-            connectionString = connectionString ?: throw IllegalStateException("connectionString must be set"),
-            credentials = credentials,
+            model = model,
+            apiToken = apiToken ?: throw IllegalStateException("apiToken must be set"),
         )
 }

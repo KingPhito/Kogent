@@ -21,5 +21,5 @@ object RandomPrimitivesFactory {
 
     fun genRandomFloat(): Float = (0..Float.MAX_VALUE.toInt()).random().toFloat()
 
-    fun genRandomFloatArray(size: Int = 10): List<Float> = (1..size).map { genRandomFloat() }
+    fun genRandomFloatList(size: Int = 10): List<Float> = (1..size).map { genRandomFloat() }
 }

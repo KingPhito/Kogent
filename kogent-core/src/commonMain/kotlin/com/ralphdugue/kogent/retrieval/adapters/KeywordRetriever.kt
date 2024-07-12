@@ -27,11 +27,11 @@ class KeywordRetriever(
         val lowercaseQuery = query.lowercase()
         val dataSources = dataSourceRegistry.getDataSources()
         for (dataSource in dataSources) {
-            if (lowercaseQuery.contains(dataSource.lowercase())) {
-                return dataSource
+            if (lowercaseQuery.contains(dataSource.identifier.lowercase())) {
+                return dataSource.identifier
             }
         }
-        return dataSources.first()
+        return dataSources.first().identifier
     }
 
     private fun buildContext(

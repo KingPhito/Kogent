@@ -1,8 +1,15 @@
 package com.ralphdugue.kogent.retrieval.domain.entities
 
+import com.ralphdugue.kogent.indexing.domain.entities.Index
+import com.ralphdugue.kogent.query.domain.entities.QueryEngine
+
 /**
- * Retrievers are classes that are used to retrieve data from an index.
+ * A context retriever.
+ *
+ * Retrievers are classes that are used to retrieve data from an [Index].
  * They analyze the query and determine which index to query from.
+ * They then send the query to the index and retrieve the data.
+ * @author Ralph Dugue
  */
 interface Retriever {
     /**

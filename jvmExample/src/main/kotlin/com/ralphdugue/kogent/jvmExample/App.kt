@@ -30,7 +30,7 @@ fun main() {
     val line = readlnOrNull()
     GlobalScope.launch {
         while (line != null) {
-            println(queryEngine.sendUserQuery(line))
+            println(queryEngine.processQuery(line))
         }
     }
 }

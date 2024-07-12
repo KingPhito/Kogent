@@ -7,6 +7,8 @@ import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
@@ -35,6 +37,7 @@ suspend fun getResponse(
                 }
                 APIDataSource.HttpMethod.POST -> {
                     client.post(source.baseUrl + source.endpoint) {
+                        contentType(ContentType.Application.Json)
                         source.headers?.forEach { header(it.key, it.value) }
                         source.queryParams?.forEach { parameter(it.key, it.value) }
                         source.body?.let {

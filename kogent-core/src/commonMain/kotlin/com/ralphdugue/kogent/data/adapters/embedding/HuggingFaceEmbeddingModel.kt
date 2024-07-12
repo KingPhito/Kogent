@@ -24,13 +24,13 @@ internal class HuggingFaceEmbeddingModel(
         }
     }
 
-    private fun createDataSource(body: String): APIDataSource =
+    private fun createDataSource(text: String): APIDataSource =
         APIDataSource(
             identifier = config.model,
             baseUrl = "https://api-inference.huggingface.co",
             headers = mapOf("Authorization" to "Bearer ${config.apiToken}"),
             method = APIDataSource.HttpMethod.POST,
             endpoint = "/pipeline/feature-extraction/sentence-transformers/${config.model}",
-            body = mapOf("inputs" to body),
+            body = mapOf("inputs" to text),
         )
 }

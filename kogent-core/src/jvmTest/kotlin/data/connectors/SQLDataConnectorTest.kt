@@ -43,7 +43,7 @@ class SQLDataConnectorTest : BaseTest() {
     @BeforeTest
     fun setUp() {
         Dispatchers.setMain(mainCoroutineDispatcher)
-        coEvery { embeddingModel.getEmbedding(any()) } returns RandomPrimitivesFactory.genRandomFloatArray()
+        coEvery { embeddingModel.getEmbedding(any()) } returns RandomPrimitivesFactory.genRandomFloatList()
         coEvery { index.indexDocument(any()) } returns true
         subject = KogentSQLDataConnector(embeddingModel, index, dataSourceRegistry)
         dbConnection = FakeDatabaseFactory.createFakeDatabase(dbName, dbUser, dbPassword)
@@ -66,14 +66,14 @@ class SQLDataConnectorTest : BaseTest() {
     }
 
     /**
-     * fetchData tests
+     * readQuery tests
      */
 
     @Test
-    fun `fetchData should return a failed result when the data source is not an SQL data source`() =
+    fun `readQuery should return a failed result when the data source is not an SQL data source`() =
         runTest {
             val actual =
-                subject.fetchData(
+                subject.readQuery(
                     dataSource = mockkClass(APIDataSource::class),
                 )
 
@@ -89,10 +89,10 @@ class SQLDataConnectorTest : BaseTest() {
         }
 
     @Test
-    fun `fetchData should return a failed result when the query is null`() =
+    fun `readQuery should return a failed result when the query is null`() =
         runTest {
             val actual =
-                subject.fetchData(
+                subject.readQuery(
                     dataSource =
                         SQLDataSource(
                             identifier = RandomPrimitivesFactory.genRandomString(),
@@ -116,7 +116,7 @@ class SQLDataConnectorTest : BaseTest() {
         }
 
     @Test
-    fun `fetchData should return a successful result, with the correct data, when the query is successful`() =
+    fun `readQuery should return a successful result, with the correct data, when the query is successful`() =
         runTest {
             FakeDatabaseFactory.insertTestData(
                 connection = dbConnection,
@@ -129,7 +129,7 @@ class SQLDataConnectorTest : BaseTest() {
             )
 
             val actual =
-                subject.fetchData(
+                subject.readQuery(
                     dataSource =
                         SQLDataSource(
                             identifier = RandomPrimitivesFactory.genRandomString(),
@@ -157,14 +157,14 @@ class SQLDataConnectorTest : BaseTest() {
         }
 
     /**
-     * updateData tests
+     * writeQuery tests
      */
 
     @Test
-    fun `updateData should return a failed result when the query did not update any rows`() =
+    fun `writeQuery should return a failed result when the query did not update any rows`() =
         runTest {
             val actual =
-                subject.updateData(
+                subject.writeQuery(
                     dataSource =
                         SQLDataSource(
                             identifier = RandomPrimitivesFactory.genRandomString(),
@@ -189,7 +189,7 @@ class SQLDataConnectorTest : BaseTest() {
         }
 
     @Test
-    fun `updateData should return a successful result when the query updated rows`() =
+    fun `writeQuery should return a successful result when the query updated rows`() =
         runTest {
             FakeDatabaseFactory.insertTestData(
                 connection = dbConnection,
@@ -202,7 +202,7 @@ class SQLDataConnectorTest : BaseTest() {
             )
 
             val actual =
-                subject.updateData(
+                subject.writeQuery(
                     dataSource =
                         SQLDataSource(
                             identifier = RandomPrimitivesFactory.genRandomString(),
@@ -221,42 +221,6 @@ class SQLDataConnectorTest : BaseTest() {
                     columnNames = emptySet(),
                     rows = emptyList(),
                     resultType = QueryResult.ResultType.SUCCESS,
-                )
-            assertEquals(expected.toString().uppercase(), actual.toString().uppercase())
-            assertEquals(expected.resultType, actual.resultType)
-        }
-
-    /**
-     * fetchSchema tests
-     */
-
-    @Test
-    fun `fetchSchema should return a successful result, with the correct schema, when the query is successful`() =
-        runTest {
-            val actual =
-                subject.fetchSchema(
-                    dataSource =
-                        SQLDataSource(
-                            identifier = RandomPrimitivesFactory.genRandomString(),
-                            databaseType = SQLDataSource.DatabaseType.H2,
-                            host = "mem",
-                            databaseName = dbName,
-                            username = dbUser,
-                            password = dbPassword,
-                        ),
-                )
-
-            val expected =
-                QueryResult.SchemaQuery(
-                    schema =
-                        mapOf(
-                            dbTable to
-                                mutableMapOf(
-                                    "ID" to "INTEGER",
-                                    "NAME" to "CHARACTER VARYING",
-                                    "AGE" to "INTEGER",
-                                ),
-                        ),
                 )
             assertEquals(expected.toString().uppercase(), actual.toString().uppercase())
             assertEquals(expected.resultType, actual.resultType)

@@ -54,7 +54,7 @@ class IndexDocumentTest : BaseTest() {
                     sourceName = RandomPrimitivesFactory.genRandomString(),
                     dialect = RandomPrimitivesFactory.genRandomString(),
                     schema = RandomPrimitivesFactory.genRandomString(),
-                    embedding = RandomPrimitivesFactory.genRandomFloatArray(),
+                    embedding = RandomPrimitivesFactory.genRandomFloatList(),
                 )
             val mockResponse =
                 InsertResp
@@ -80,7 +80,7 @@ class IndexDocumentTest : BaseTest() {
                     sourceName = RandomPrimitivesFactory.genRandomString(),
                     dialect = RandomPrimitivesFactory.genRandomString(),
                     schema = RandomPrimitivesFactory.genRandomString(),
-                    embedding = RandomPrimitivesFactory.genRandomFloatArray(),
+                    embedding = RandomPrimitivesFactory.genRandomFloatList(),
                 )
             every { clientV2.hasCollection(any()) } returns true
             every { clientV2.loadCollection(any()) } returns Unit
@@ -101,7 +101,7 @@ class IndexDocumentTest : BaseTest() {
                     sourceName = RandomPrimitivesFactory.genRandomString(),
                     dialect = RandomPrimitivesFactory.genRandomString(),
                     schema = RandomPrimitivesFactory.genRandomString(),
-                    embedding = RandomPrimitivesFactory.genRandomFloatArray(),
+                    embedding = RandomPrimitivesFactory.genRandomFloatList(),
                 )
             val mockResponse =
                 InsertResp
@@ -128,7 +128,7 @@ class IndexDocumentTest : BaseTest() {
                     sourceName = RandomPrimitivesFactory.genRandomString(),
                     dialect = RandomPrimitivesFactory.genRandomString(),
                     schema = RandomPrimitivesFactory.genRandomString(),
-                    embedding = RandomPrimitivesFactory.genRandomFloatArray(),
+                    embedding = RandomPrimitivesFactory.genRandomFloatList(),
                 )
             every { clientV2.hasCollection(any()) } returns false
             every { clientV2.createCollection(any()) } throws Exception()

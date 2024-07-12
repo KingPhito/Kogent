@@ -48,7 +48,7 @@ class SearchIndexTest : BaseTest() {
     @Test
     fun `searchIndex should return a list of documents when query is successful`() =
         runTest {
-            val query = RandomPrimitivesFactory.genRandomFloatArray()
+            val query = RandomPrimitivesFactory.genRandomFloatList()
             val expected = FakeDocumentFactory.genRandomDocumentList()
             val searchResults =
                 expected.map {
@@ -85,7 +85,7 @@ class SearchIndexTest : BaseTest() {
     @Test
     fun `searchIndex should return an empty list when query is unsuccessful`() =
         runTest {
-            val query = RandomPrimitivesFactory.genRandomFloatArray()
+            val query = RandomPrimitivesFactory.genRandomFloatList()
             val expected = FakeDocumentFactory.genRandomDocumentList()
             every { clientV2.search(any()) } throws Exception("Failed to search")
             val actual = subject.searchIndex(sourceName = expected[0].sourceName, query = query, topK = 10)

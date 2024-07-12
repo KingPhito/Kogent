@@ -1,10 +1,11 @@
 CREATE TABLE DataSources (
-    identifier TEXT
+    identifier TEXT NOT NULL UNIQUE,
+    description TEXT
 );
 
 insertDataSource:
-INSERT INTO DataSources(identifier)
-VALUES(?);
+INSERT INTO DataSources(identifier, description)
+VALUES(?, ?);
 
-selectAllDataSources:
+selectAll:
 SELECT * FROM DataSources;

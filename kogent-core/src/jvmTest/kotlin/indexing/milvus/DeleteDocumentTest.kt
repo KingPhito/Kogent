@@ -53,7 +53,7 @@ class DeleteDocumentTest : BaseTest() {
                     sourceName = RandomPrimitivesFactory.genRandomString(),
                     dialect = RandomPrimitivesFactory.genRandomString(),
                     schema = RandomPrimitivesFactory.genRandomString(),
-                    embedding = RandomPrimitivesFactory.genRandomFloatArray(),
+                    embedding = RandomPrimitivesFactory.genRandomFloatList(),
                 )
             val mockResponse = DeleteResp.builder().deleteCnt(1).build()
             every { clientV2.delete(any()) } returns mockResponse
@@ -70,7 +70,7 @@ class DeleteDocumentTest : BaseTest() {
                     sourceName = RandomPrimitivesFactory.genRandomString(),
                     dialect = RandomPrimitivesFactory.genRandomString(),
                     schema = RandomPrimitivesFactory.genRandomString(),
-                    embedding = RandomPrimitivesFactory.genRandomFloatArray(),
+                    embedding = RandomPrimitivesFactory.genRandomFloatList(),
                 )
             val mockResponse = DeleteResp.builder().deleteCnt(0).build()
             every { clientV2.delete(any()) } returns mockResponse

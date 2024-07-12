@@ -1,7 +1,7 @@
 package utils
 
 import com.ralphdugue.kogent.indexing.domain.entities.Document
-import utils.RandomPrimitivesFactory.genRandomFloatArray
+import utils.RandomPrimitivesFactory.genRandomFloatList
 import utils.RandomPrimitivesFactory.genRandomString
 
 object FakeDocumentFactory {
@@ -11,14 +11,14 @@ object FakeDocumentFactory {
             sourceName = sourceName ?: genRandomString(),
             dialect = genRandomString(),
             schema = genRandomString(),
-            embedding = genRandomFloatArray(),
+            embedding = genRandomFloatList(),
         )
 
     fun genRandomAPIDocument(sourceName: String? = null): Document.APIDocument =
         Document.APIDocument(
             id = genRandomString(),
             sourceName = sourceName ?: genRandomString(),
-            embedding = genRandomFloatArray(),
+            embedding = genRandomFloatList(),
         )
 
     fun genRandomDocumentList(size: Int = 10): List<Document.SQLDocument> {

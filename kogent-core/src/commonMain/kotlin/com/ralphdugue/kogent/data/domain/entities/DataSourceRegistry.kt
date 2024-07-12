@@ -16,7 +16,7 @@ interface DataSourceRegistry {
      * Returns a list of all the data sources that were added to the Kogent system.
      * @return a list of [DataSource] objects
      */
-    suspend fun getDataSources(): List<String>
+    suspend fun getDataSources(): List<DataSource>
 
     /**
      * Adds a data source to the registry.
@@ -53,14 +53,3 @@ class ExternalRegistryBuilder {
             dataSource = dataSource ?: throw IllegalStateException("dataSource must be set"),
         )
 }
-
-/**
- * A cached [DataSource]
- *
- * This is a simple data class to store data sources in a [DataSourceRegistry].
- * @author Ralph Dugue
- */
-@Serializable
-data class CacheDataSource(
-    val identifier: String
-)

@@ -26,7 +26,7 @@ class KogentSQLDataConnector(
 ) : SQLDataConnector {
     override suspend fun indexData(dataSource: DataSource): Boolean {
         val schemaQuery = fetchSchema(dataSource as SQLDataSource)
-        val tableQuery = fetchData(dataSource)
+        val tableQuery = readQuery(dataSource)
         val tableDocument = createDocument(tableQuery, schemaQuery, dataSource)
         val tableIndexed = index.indexDocument(tableDocument)
         if (tableIndexed) {
@@ -35,7 +35,15 @@ class KogentSQLDataConnector(
         return tableIndexed
     }
 
-    override suspend fun fetchData(dataSource: DataSource): QueryResult.TableQuery {
+    override suspend fun updateData(dataSource: DataSource): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun removeData(dataSource: DataSource): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun readQuery(dataSource: DataSource): QueryResult.TableQuery {
         if (dataSource !is SQLDataSource) {
             return QueryResult.TableQuery(
                 tableName = "",
@@ -75,7 +83,7 @@ class KogentSQLDataConnector(
         }
     }
 
-    override suspend fun updateData(
+    override suspend fun writeQuery(
         dataSource: SQLDataSource,
         query: String,
     ): QueryResult {
@@ -99,7 +107,7 @@ class KogentSQLDataConnector(
         }
     }
 
-    override suspend fun fetchSchema(dataSource: SQLDataSource): QueryResult.SchemaQuery {
+    private fun fetchSchema(dataSource: SQLDataSource): QueryResult.SchemaQuery {
         val query =
             when (dataSource.databaseType) {
                 DatabaseType.MYSQL ->
