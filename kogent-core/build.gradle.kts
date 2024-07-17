@@ -1,3 +1,4 @@
+import org.gradle.kotlin.dsl.support.kotlinCompilerOptions
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -13,6 +14,7 @@ group = "com.ralphdugue.kogent"
 version = "0.1-PRE-ALPHA"
 
 kotlin {
+    jvmToolchain(17)
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
@@ -38,6 +40,7 @@ kotlin {
                 implementation(libs.kotlinx.coroutines)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.bundles.ktor)
+                implementation(libs.kermit)
             }
         }
         val commonTest by getting {
@@ -77,7 +80,16 @@ kotlin {
                 implementation("io.insert-koin:koin-android")
             }
         }
-        val androidUnitTest by getting
+        val androidUnitTest by getting {
+            dependencies {
+                implementation(project.dependencies.platform(libs.test.junit.bom))
+                implementation("org.junit.jupiter:junit-jupiter")
+                runtimeOnly("org.junit.platform:junit-platform-launcher")
+                implementation(libs.bundles.test)
+                implementation(libs.sqlDelight.jvm)
+            }
+        }
+
     }
 }
 
@@ -112,6 +124,15 @@ android {
 dependencies {
     add("kspCommonMainMetadata", libs.koin.ksp)
     //add("kspAndroid", libs.koin.ksp)
+}
+
+afterEvaluate {  // WORKAROUND: both register() and named() fail – https://github.com/gradle/gradle/issues/9331
+    tasks {
+        withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>> {
+            if (name != "kspCommonMainKotlinMetadata")
+                dependsOn("kspCommonMainKotlinMetadata")
+        }
+    }
 }
 
 

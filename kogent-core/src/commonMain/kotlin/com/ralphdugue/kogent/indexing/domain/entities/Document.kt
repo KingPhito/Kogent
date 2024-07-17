@@ -12,6 +12,7 @@ sealed interface Document {
         override val sourceName: String,
         val dialect: String,
         val schema: String,
+        val query: String,
         override val embedding: List<Float>,
     ) : Document
 

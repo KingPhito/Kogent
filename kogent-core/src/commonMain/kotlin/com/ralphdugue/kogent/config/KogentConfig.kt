@@ -4,11 +4,11 @@ import com.ralphdugue.kogent.data.domain.entities.DataSource
 import com.ralphdugue.kogent.data.domain.entities.LocalRegistry
 import com.ralphdugue.kogent.data.domain.entities.ExternalRegistryBuilder
 import com.ralphdugue.kogent.data.domain.entities.RegistryType
-import com.ralphdugue.kogent.data.domain.entities.api.ApiDataSourceBuilder
+import com.ralphdugue.kogent.data.domain.entities.ApiDataSourceBuilder
 import com.ralphdugue.kogent.data.domain.entities.embedding.APIEmbeddingModelConfigBuilder
 import com.ralphdugue.kogent.data.domain.entities.embedding.EmbeddingConfig
 import com.ralphdugue.kogent.data.domain.entities.embedding.HuggingFaceEmbeddingModelConfigBuilder
-import com.ralphdugue.kogent.data.domain.entities.sql.SQLDataSourceBuilder
+import com.ralphdugue.kogent.data.domain.entities.SQLDataSourceBuilder
 import com.ralphdugue.kogent.indexing.domain.entities.IndexConfig
 import com.ralphdugue.kogent.indexing.domain.entities.VectorStoreConfigBuilder
 import com.ralphdugue.kogent.query.domain.entities.HuggingFaceLLModelConfigBuilder

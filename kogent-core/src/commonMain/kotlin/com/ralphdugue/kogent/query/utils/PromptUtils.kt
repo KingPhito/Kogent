@@ -4,18 +4,11 @@ import com.ralphdugue.kogent.query.domain.entities.LLMResponse
 import com.ralphdugue.kogent.query.domain.entities.Operation
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
 
-object QueryUtils {
+object PromptUtils {
 
     val json = Json {
         prettyPrint = true
-        serializersModule = SerializersModule {
-            polymorphic(Operation::class) {
-                subclass(Operation.SqlQuery::class)
-                subclass(Operation.ApiCall::class)
-            }
-        }
     }
 
     // Example 1: Answer Only
@@ -33,7 +26,7 @@ object QueryUtils {
             answer = "Updating customer record...",
             needsUpdate = true,
             operation = Operation.SqlQuery(
-                dataSource = "my_database",
+                dataSourceId = "my_database",
                 query = "UPDATE customers SET age = 31 WHERE name = 'Alice'"
             )
         )
@@ -45,7 +38,7 @@ object QueryUtils {
             answer = "Fetching updated product information...",
             needsUpdate = true,
             operation = Operation.ApiCall(
-                dataSource = "https://api.example.com",
+                dataSourceId = "https://api.example.com",
                 endpoint = "/products/123",
                 method = "GET"
             )

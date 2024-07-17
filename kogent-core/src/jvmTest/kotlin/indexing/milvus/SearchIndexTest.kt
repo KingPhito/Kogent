@@ -26,8 +26,8 @@ class SearchIndexTest : BaseTest() {
     private lateinit var subject: MilvusIndex
 
     @BeforeTest
-    fun setup() {
-        Dispatchers.setMain(mainCoroutineDispatcher)
+    override fun setUp() {
+        super.setUp()
         subject =
             MilvusIndex(
                 config =
@@ -40,9 +40,8 @@ class SearchIndexTest : BaseTest() {
     }
 
     @AfterTest
-    fun tearDown() {
-        Dispatchers.resetMain()
-        mainCoroutineDispatcher.close()
+    override fun tearDown() {
+        super.tearDown()
     }
 
     @Test

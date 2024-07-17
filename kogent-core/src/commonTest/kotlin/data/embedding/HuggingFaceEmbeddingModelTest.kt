@@ -5,37 +5,20 @@ import com.ralphdugue.kogent.data.domain.entities.embedding.EmbeddingConfig
 import common.BaseTest
 import io.ktor.client.HttpClient
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
-import utils.FakeHttpClientFactory
+import utils.MockHttpClientFactory
 import utils.RandomPrimitivesFactory
 
 class HuggingFaceEmbeddingModelTest : BaseTest() {
     private lateinit var httpClient: HttpClient
     private lateinit var subject: HuggingFaceEmbeddingModel
 
-    @BeforeEach
-    fun setUp() {
-        Dispatchers.setMain(mainCoroutineDispatcher)
-
-    }
-
-    @AfterEach
-    fun tearDown() {
-        Dispatchers.resetMain()
-    }
-
     @Test
     fun `getEmbedding should return a list of floats when successful`()  =
         runTest {
             val expected = RandomPrimitivesFactory.genRandomFloatList()
-            httpClient = FakeHttpClientFactory.createClient(
+            httpClient = MockHttpClientFactory.createClient(
                 json = "$expected",
                 status = HttpStatusCode.OK
             )
@@ -51,11 +34,11 @@ class HuggingFaceEmbeddingModelTest : BaseTest() {
         }
 
     @Test
-    fun `getEmbedding should throw an exception when unsuccessful`()  =
+    fun `getEmbedding should return an empty list when unsuccessful`() =
         runTest {
-            httpClient = FakeHttpClientFactory.createClient(
+            httpClient = MockHttpClientFactory.createClient(
                 json = "",
-                status = HttpStatusCode.InternalServerError
+                status = HttpStatusCode.BadRequest
             )
             subject = HuggingFaceEmbeddingModel(
                 config = EmbeddingConfig.HuggingFaceEmbeddingConfig(
@@ -64,8 +47,7 @@ class HuggingFaceEmbeddingModelTest : BaseTest() {
                 ),
                 client = httpClient
             )
-            assertThrows<Exception> {
-                subject.getEmbedding(RandomPrimitivesFactory.genRandomString())
-            }
+            val actual = subject.getEmbedding(RandomPrimitivesFactory.genRandomString())
+            assert(actual.isEmpty())
         }
 }

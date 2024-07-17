@@ -1,5 +1,7 @@
 package com.ralphdugue.kogent.data.domain.entities
 
+import kotlinx.serialization.Serializable
+
 /**
  * A data source.
  *
@@ -8,9 +10,17 @@ package com.ralphdugue.kogent.data.domain.entities
  * for the Kogent system to make queries with.
  * @author Ralph Dugue
  */
-interface DataSource {
+@Serializable
+sealed interface DataSource {
     /**
      * The identifier of the data source.
      */
     val identifier: String
+
+    val dataSourceType: DataSourceType
+}
+
+@Serializable
+enum class DataSourceType {
+    API, SQL
 }

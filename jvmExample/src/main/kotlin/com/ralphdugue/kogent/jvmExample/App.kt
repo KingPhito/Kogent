@@ -11,9 +11,6 @@ fun main() {
             identifier = "test"
             baseUrl = "http://localhost:8080"
         }
-        sqlDataSource {
-
-        }
         huggingFaceEmbeddingConfig {
 
         }
@@ -27,6 +24,7 @@ fun main() {
 
     }
     val queryEngine = Kogent.getQueryEngine()
+    println("Enter a query:")
     val line = readlnOrNull()
     GlobalScope.launch {
         while (line != null) {

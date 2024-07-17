@@ -1,11 +1,28 @@
-CREATE TABLE DataSources (
+CREATE TABLE CachedDataSources (
     identifier TEXT NOT NULL UNIQUE,
-    description TEXT
+    sourceType TEXT NOT NULL,
+    content TEXT NOT NULL
 );
 
-insertDataSource:
-INSERT INTO DataSources(identifier, description)
-VALUES(?, ?);
-
 selectAll:
-SELECT * FROM DataSources;
+SELECT * FROM CachedDataSources;
+
+selectById:
+SELECT *
+FROM CachedDataSources
+WHERE identifier = ?;
+
+insert:
+INSERT INTO CachedDataSources(identifier, sourceType, content)
+VALUES (?,?,?);
+
+update:
+UPDATE CachedDataSources
+SET content = ?
+WHERE identifier = ?
+LIMIT 1;
+
+delete:
+DELETE FROM CachedDataSources
+WHERE identifier = ?
+LIMIT 1;

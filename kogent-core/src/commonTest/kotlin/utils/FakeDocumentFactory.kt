@@ -11,6 +11,7 @@ object FakeDocumentFactory {
             sourceName = sourceName ?: genRandomString(),
             dialect = genRandomString(),
             schema = genRandomString(),
+            query = genRandomString(),
             embedding = genRandomFloatList(),
         )
 

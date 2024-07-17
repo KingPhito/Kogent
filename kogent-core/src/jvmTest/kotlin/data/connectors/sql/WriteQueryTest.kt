@@ -1,20 +1,17 @@
-package data.connectors
+package data.connectors.sql
 
 import com.ralphdugue.kogent.data.adapters.connectors.KogentSQLDataConnector
 import com.ralphdugue.kogent.data.domain.entities.DataSourceRegistry
-import com.ralphdugue.kogent.data.domain.entities.api.APIDataSource
+import com.ralphdugue.kogent.data.domain.entities.DataSourceType
 import com.ralphdugue.kogent.data.domain.entities.embedding.EmbeddingModel
 import com.ralphdugue.kogent.data.domain.entities.sql.QueryResult
 import com.ralphdugue.kogent.data.domain.entities.sql.SQLDataConnector
-import com.ralphdugue.kogent.data.domain.entities.sql.SQLDataSource
+import com.ralphdugue.kogent.data.domain.entities.SQLDataSource
 import com.ralphdugue.kogent.indexing.domain.entities.Index
 import common.BaseTest
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockkClass
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import utils.FakeDatabaseFactory
 import utils.RandomPrimitivesFactory
 import java.sql.Connection
@@ -23,7 +20,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class SQLDataConnectorTest : BaseTest() {
+class WriteQueryTest : BaseTest() {
     @MockK
     private lateinit var embeddingModel: EmbeddingModel
 
@@ -41,8 +38,8 @@ class SQLDataConnectorTest : BaseTest() {
     private lateinit var dbConnection: Connection
 
     @BeforeTest
-    fun setUp() {
-        Dispatchers.setMain(mainCoroutineDispatcher)
+    override fun setUp() {
+        super.setUp()
         coEvery { embeddingModel.getEmbedding(any()) } returns RandomPrimitivesFactory.genRandomFloatList()
         coEvery { index.indexDocument(any()) } returns true
         subject = KogentSQLDataConnector(embeddingModel, index, dataSourceRegistry)
@@ -60,105 +57,10 @@ class SQLDataConnectorTest : BaseTest() {
     }
 
     @AfterTest
-    fun tearDown() {
+    override fun tearDown() {
+        super.tearDown()
         dbConnection.close()
-        mainCoroutineDispatcher.close()
     }
-
-    /**
-     * readQuery tests
-     */
-
-    @Test
-    fun `readQuery should return a failed result when the data source is not an SQL data source`() =
-        runTest {
-            val actual =
-                subject.readQuery(
-                    dataSource = mockkClass(APIDataSource::class),
-                )
-
-            val expected =
-                QueryResult.TableQuery(
-                    tableName = "",
-                    columnNames = emptySet(),
-                    rows = emptyList(),
-                    resultType = QueryResult.ResultType.FAILURE,
-                )
-            assertEquals(expected.toString().uppercase(), actual.toString().uppercase())
-            assertEquals(expected.resultType, actual.resultType)
-        }
-
-    @Test
-    fun `readQuery should return a failed result when the query is null`() =
-        runTest {
-            val actual =
-                subject.readQuery(
-                    dataSource =
-                        SQLDataSource(
-                            identifier = RandomPrimitivesFactory.genRandomString(),
-                            databaseType = SQLDataSource.DatabaseType.H2,
-                            host = "mem",
-                            databaseName = dbName,
-                            username = dbUser,
-                            password = dbPassword,
-                        ),
-                )
-
-            val expected =
-                QueryResult.TableQuery(
-                    tableName = "",
-                    columnNames = emptySet(),
-                    rows = emptyList(),
-                    resultType = QueryResult.ResultType.FAILURE,
-                )
-            assertEquals(expected.toString().uppercase(), actual.toString().uppercase())
-            assertEquals(expected.resultType, actual.resultType)
-        }
-
-    @Test
-    fun `readQuery should return a successful result, with the correct data, when the query is successful`() =
-        runTest {
-            FakeDatabaseFactory.insertTestData(
-                connection = dbConnection,
-                tableName = dbTable,
-                data =
-                    listOf(
-                        listOf(1, "Alice", 25),
-                        listOf(2, "Bob", 30),
-                    ),
-            )
-
-            val actual =
-                subject.readQuery(
-                    dataSource =
-                        SQLDataSource(
-                            identifier = RandomPrimitivesFactory.genRandomString(),
-                            databaseType = SQLDataSource.DatabaseType.H2,
-                            host = "mem",
-                            databaseName = dbName,
-                            username = dbUser,
-                            password = dbPassword,
-                            query = "SELECT * FROM $dbTable",
-                        ),
-                )
-
-            val expected =
-                QueryResult.TableQuery(
-                    tableName = dbTable,
-                    columnNames = setOf("ID", "NAME", "AGE"),
-                    rows =
-                        listOf(
-                            mapOf("id" to 1, "NAME" to "Alice", "AGE" to 25),
-                            mapOf("id" to 2, "NAME" to "Bob", "AGE" to 30),
-                        ),
-                )
-            assertEquals(expected.toString().uppercase(), actual.toString().uppercase())
-            assertEquals(expected.resultType, actual.resultType)
-        }
-
-    /**
-     * writeQuery tests
-     */
 
     @Test
     fun `writeQuery should return a failed result when the query did not update any rows`() =
@@ -168,11 +70,13 @@ class SQLDataConnectorTest : BaseTest() {
                     dataSource =
                         SQLDataSource(
                             identifier = RandomPrimitivesFactory.genRandomString(),
+                            dataSourceType = DataSourceType.SQL,
                             databaseType = SQLDataSource.DatabaseType.H2,
                             host = "mem",
                             databaseName = dbName,
                             username = dbUser,
                             password = dbPassword,
+                            query = "UPDATE $dbTable SET name = 'Charlie' WHERE id = 3",
                         ),
                     query = "UPDATE $dbTable SET name = 'Charlie' WHERE id = 3",
                 )
@@ -206,11 +110,13 @@ class SQLDataConnectorTest : BaseTest() {
                     dataSource =
                         SQLDataSource(
                             identifier = RandomPrimitivesFactory.genRandomString(),
+                            dataSourceType = DataSourceType.SQL,
                             databaseType = SQLDataSource.DatabaseType.H2,
                             host = "mem",
                             databaseName = dbName,
                             username = dbUser,
                             password = dbPassword,
+                            query = "UPDATE $dbTable SET name = 'Charlie' WHERE id = 2",
                         ),
                     query = "UPDATE $dbTable SET name = 'Charlie' WHERE id = 2",
                 )

@@ -1,23 +1,25 @@
 package com.ralphdugue.kogent.query.adapters
 
+import co.touchlab.kermit.Logger
 import com.ralphdugue.kogent.data.domain.entities.DataSource
 import com.ralphdugue.kogent.data.domain.entities.api.APIDataConnector
-import com.ralphdugue.kogent.data.domain.entities.api.APIDataSource
+import com.ralphdugue.kogent.data.domain.entities.APIDataSource
+import com.ralphdugue.kogent.data.domain.entities.DataSourceRegistry
 import com.ralphdugue.kogent.data.domain.entities.sql.SQLDataConnector
-import com.ralphdugue.kogent.data.domain.entities.sql.SQLDataSource
+import com.ralphdugue.kogent.data.domain.entities.SQLDataSource
 import com.ralphdugue.kogent.query.domain.entities.LLMResponse
 import com.ralphdugue.kogent.query.domain.entities.LLModel
 import com.ralphdugue.kogent.query.domain.entities.Operation
 import com.ralphdugue.kogent.query.domain.entities.QueryEngine
-import com.ralphdugue.kogent.query.utils.QueryUtils
+import com.ralphdugue.kogent.query.utils.PromptUtils
 import com.ralphdugue.kogent.retrieval.domain.entities.Retriever
-import kotlinx.serialization.json.Json
 import org.koin.core.annotation.Single
 
 @Single(binds = [QueryEngine::class])
 class KogentQueryEngine(
     private val retriever: Retriever,
     private val llModel: LLModel,
+    private val dataSourceRegistry: DataSourceRegistry,
     private val apiDataConnector: APIDataConnector,
     private val sqlDataConnector: SQLDataConnector,
 ) : QueryEngine {
@@ -26,56 +28,102 @@ class KogentQueryEngine(
         val prompt = generatePrompt(query, context)
         val response = llModel.query(prompt)
         val llmResponse = parseLLMResponse(response)
-        when (llmResponse.operation) {
-            is Operation.ApiCall -> TODO()
-            is Operation.SqlQuery -> TODO()
-            null -> {}
+        if (llmResponse.needsUpdate) {
+            val result = dataSourceRegistry.getDataSourceById(llmResponse.operation!!.dataSourceId)
+            result.fold(
+                onSuccess = { dataSource ->
+                    when (llmResponse.operation) {
+                        is Operation.ApiCall -> {
+                            apiDataConnector.postData(dataSource as APIDataSource, llmResponse.operation.body)
+                        }
+                        is Operation.SqlQuery -> {
+                            sqlDataConnector.writeQuery(dataSource as SQLDataSource, llmResponse.operation.query)
+                        }
+                    }
+                    return llmResponse.answer
+                },
+                onFailure = {
+                    Logger.e(it) { "Failed to update data source" }
+                    return "There was an error processing the request: ${it.localizedMessage}"
+                }
+            )
         }
         return llmResponse.answer
     }
 
-    override suspend fun addDataSource(dataSource: DataSource): Boolean {
-        return try {
-            when (dataSource) {
-                is APIDataSource -> apiDataConnector.indexData(dataSource)
-                is SQLDataSource -> sqlDataConnector.indexData(dataSource)
+    override suspend fun addDataSource(dataSource: DataSource) {
+        when (dataSource) {
+            is APIDataSource -> {
+                apiDataConnector.indexData(dataSource).fold(
+                    onSuccess = { Logger.i { "Data source ${dataSource.identifier} added successfully" } },
+                    onFailure = { Logger.e(it) { "Failed to add data source ${dataSource.identifier}" } }
+                )
             }
-            true
-        } catch (e: Exception) {
-            false
+            is SQLDataSource -> {
+                sqlDataConnector.indexData(dataSource).fold(
+                    onSuccess = { Logger.i { "Data source ${dataSource.identifier} added successfully" } },
+                    onFailure = { Logger.e(it) { "Failed to add data source ${dataSource.identifier}" } }
+                )
+            }
         }
     }
 
-    override suspend fun removeDataSource(dataSource: DataSource): Boolean {
-        TODO("Not yet implemented")
+    override suspend fun removeDataSource(dataSource: DataSource) {
+        when (dataSource) {
+            is APIDataSource -> {
+                apiDataConnector.removeData(dataSource).fold(
+                    onSuccess = { Logger.i { "Data source ${dataSource.identifier} removed successfully" } },
+                    onFailure = { Logger.e(it) { "Failed to remove data source ${dataSource.identifier}" } }
+                )
+            }
+            is SQLDataSource -> {
+                sqlDataConnector.removeData(dataSource).fold(
+                    onSuccess = { Logger.i { "Data source ${dataSource.identifier} removed successfully" } },
+                    onFailure = { Logger.e(it) { "Failed to remove data source ${dataSource.identifier}" } }
+                )
+            }
+        }
     }
 
-    override suspend fun updateDataSource(dataSource: DataSource): Boolean {
-        TODO("Not yet implemented")
+    override suspend fun updateDataSource(dataSource: DataSource) {
+        when (dataSource) {
+            is APIDataSource -> {
+                apiDataConnector.updateData(dataSource).fold(
+                    onSuccess = { Logger.i { "Data source ${dataSource.identifier} updated successfully" } },
+                    onFailure = { Logger.e(it) { "Failed to update data source ${dataSource.identifier}" } }
+                )
+            }
+            is SQLDataSource -> {
+                sqlDataConnector.updateData(dataSource).fold(
+                    onSuccess = { Logger.i { "Data source ${dataSource.identifier} updated successfully" } },
+                    onFailure = { Logger.e(it) { "Failed to update data source ${dataSource.identifier}" } }
+                )
+            }
+        }
     }
 
     private fun parseLLMResponse(response: String): LLMResponse {
         return try {
-            QueryUtils.json.decodeFromString<LLMResponse>(response)
+            PromptUtils.json.decodeFromString<LLMResponse>(response)
         } catch (e: Exception) {
-            throw IllegalArgumentException("Invalid response format")
+            LLMResponse(answer = response, operation = null, needsUpdate = false)
         }
     }
 
     private fun generatePrompt(query: String, context: String): String =
         """
-            You are a helpful AI assistant that can process natural language queries related to various data sources. 
-            Analyze the query and the context provided below. Based on your analysis, provide a response 
-            that adheres strictly to the following JSON schema:
+            You are a helpful AI assistant that can process natural language requests from users related 
+            to various data sources. Analyze the query and the context provided below. Based on your analysis, 
+            provide a response that adheres strictly to the following JSON schema:
 
-            ${QueryUtils.responseSchema}
+            ${PromptUtils.responseSchema}
 
             Here are some examples of valid responses:
-            ${QueryUtils.answerOnly}
-            ${QueryUtils.sqlUpdate}
-            ${QueryUtils.apiCall}
+            ${PromptUtils.answerOnly}
+            ${PromptUtils.sqlUpdate}
+            ${PromptUtils.apiCall}
             
-            Query: $query
+            User request: $query
             Context: $context
         """.trimIndent()
 

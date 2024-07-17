@@ -1,7 +1,7 @@
 package com.ralphdugue.kogent.data.domain.entities.embedding
 
-import com.ralphdugue.kogent.data.domain.entities.api.APIDataSource
-import com.ralphdugue.kogent.data.domain.entities.api.ApiDataSourceBuilder
+import com.ralphdugue.kogent.data.domain.entities.APIDataSource
+import com.ralphdugue.kogent.data.domain.entities.ApiDataSourceBuilder
 import com.ralphdugue.kogent.indexing.domain.entities.Index
 
 /**

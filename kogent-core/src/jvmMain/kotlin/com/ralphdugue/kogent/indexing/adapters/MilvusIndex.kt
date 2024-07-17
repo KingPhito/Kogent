@@ -113,6 +113,8 @@ class MilvusIndex(
         return when (document) {
             is Document.SQLDocument -> {
                 data["dialect"] = document.dialect
+                data["schema"] = document.schema
+                data["query"] = document.query
                 listOf(data)
             }
             is Document.APIDocument -> TODO()
@@ -128,11 +130,13 @@ class MilvusIndex(
             "SQL" -> {
                 val dialect = searchResult.entity["dialect"] as String
                 val schema = searchResult.entity["schema"] as String
+                val query = searchResult.entity["query"] as String
                 Document.SQLDocument(
                     id = id,
                     sourceName = sourceName,
                     dialect = dialect,
                     schema = schema,
+                    query = query,
                     embedding = embedding,
                 )
             }

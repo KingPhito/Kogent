@@ -25,13 +25,17 @@ class KeywordRetriever(
 
     private suspend fun selectDataSource(query: String): String {
         val lowercaseQuery = query.lowercase()
-        val dataSources = dataSourceRegistry.getDataSources()
-        for (dataSource in dataSources) {
-            if (lowercaseQuery.contains(dataSource.identifier.lowercase())) {
-                return dataSource.identifier
-            }
-        }
-        return dataSources.first().identifier
+        dataSourceRegistry.getDataSources().fold(
+            onSuccess = { dataSources ->
+                dataSources.forEach { dataSource ->
+                    if (lowercaseQuery.contains(dataSource.identifier.lowercase())) {
+                        return dataSource.identifier
+                    }
+                }
+                return dataSources.first().identifier
+            },
+            onFailure = { throw it }
+        )
     }
 
     private fun buildContext(
@@ -39,7 +43,7 @@ class KeywordRetriever(
         documents: List<Document>,
     ): String {
         val stringBuilder = StringBuilder()
-        stringBuilder.appendLine("Query: $query\n")
+        stringBuilder.appendLine("User request: $query\n")
         documents.forEach { document ->
             stringBuilder.appendLine("Document: ${document.id}")
             stringBuilder.appendLine("SourceType: ${document.sourceType}")
@@ -48,6 +52,7 @@ class KeywordRetriever(
                 is Document.SQLDocument -> {
                     stringBuilder.appendLine("Dialect: ${document.dialect}")
                     stringBuilder.appendLine("Schema: ${document.schema}")
+                    stringBuilder.appendLine("Query: ${document.query}")
                 }
                 is Document.APIDocument -> {
                     // No additional information for API documents

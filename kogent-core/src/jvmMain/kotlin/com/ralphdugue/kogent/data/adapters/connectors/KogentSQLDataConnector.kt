@@ -5,8 +5,8 @@ import com.ralphdugue.kogent.data.domain.entities.DataSourceRegistry
 import com.ralphdugue.kogent.data.domain.entities.embedding.EmbeddingModel
 import com.ralphdugue.kogent.data.domain.entities.sql.QueryResult
 import com.ralphdugue.kogent.data.domain.entities.sql.SQLDataConnector
-import com.ralphdugue.kogent.data.domain.entities.sql.SQLDataSource
-import com.ralphdugue.kogent.data.domain.entities.sql.SQLDataSource.DatabaseType
+import com.ralphdugue.kogent.data.domain.entities.SQLDataSource
+import com.ralphdugue.kogent.data.domain.entities.SQLDataSource.DatabaseType
 import com.ralphdugue.kogent.indexing.domain.entities.Document
 import com.ralphdugue.kogent.indexing.domain.entities.Index
 import com.zaxxer.hikari.HikariDataSource
@@ -24,69 +24,88 @@ class KogentSQLDataConnector(
     private val index: Index,
     private val dataSourceRegistry: DataSourceRegistry,
 ) : SQLDataConnector {
-    override suspend fun indexData(dataSource: DataSource): Boolean {
-        val schemaQuery = fetchSchema(dataSource as SQLDataSource)
-        val tableQuery = readQuery(dataSource)
-        val tableDocument = createDocument(tableQuery, schemaQuery, dataSource)
-        val tableIndexed = index.indexDocument(tableDocument)
-        if (tableIndexed) {
+    override suspend fun indexData(dataSource: DataSource): Result<Unit> {
+        return runCatching {
+            val schemaQuery = fetchSchema(dataSource as SQLDataSource)
+            val tableQuery = readQuery(dataSource)
+            val tableDocument = createDocument(tableQuery, schemaQuery, dataSource)
+            val tableIndexed = index.indexDocument(tableDocument)
+
+            if (!tableIndexed) {
+                error("Failed to index document")
+            }
+
             dataSourceRegistry.registerDataSource(dataSource)
         }
-        return tableIndexed
     }
 
-    override suspend fun updateData(dataSource: DataSource): Boolean {
-        TODO("Not yet implemented")
-    }
 
-    override suspend fun removeData(dataSource: DataSource): Boolean {
-        TODO("Not yet implemented")
-    }
+    override suspend fun updateData(dataSource: DataSource): Result<Unit> {
+        return runCatching {
+            val schemaQuery = fetchSchema(dataSource as SQLDataSource)
+            val tableQuery = readQuery(dataSource)
+            val tableDocument = createDocument(tableQuery, schemaQuery, dataSource)
+            val tableUpdated = index.updateDocument(tableDocument)
 
-    override suspend fun readQuery(dataSource: DataSource): QueryResult.TableQuery {
-        if (dataSource !is SQLDataSource) {
-            return QueryResult.TableQuery(
-                tableName = "",
-                columnNames = emptySet(),
-                rows = emptyList(),
-                resultType = QueryResult.ResultType.FAILURE,
-            )
-        }
-        if (dataSource.query == null) {
-            return QueryResult.TableQuery(
-                tableName = "",
-                columnNames = emptySet(),
-                rows = emptyList(),
-                resultType = QueryResult.ResultType.FAILURE,
-            )
-        }
-        val connection = getConnection(dataSource)
-        return executeQuery(connection, dataSource.query).use { resultSet ->
-            val columnNames = mutableSetOf<String>()
-            val rows = mutableListOf<Map<String, Any?>>()
-            val tableName = resultSet.metaData.getTableName(1)
-            while (resultSet.next()) {
-                val row = mutableMapOf<String, Any?>()
-                for (i in 1..resultSet.metaData.columnCount) {
-                    columnNames.add(resultSet.metaData.getColumnName(i))
-                    row[resultSet.metaData.getColumnName(i)] = resultSet.getObject(i)
-                }
-                rows.add(row)
+            if (!tableUpdated) {
+                error("Failed to update document")
             }
+
+            dataSourceRegistry.updateDataSource(dataSource)
+        }
+    }
+
+    override suspend fun removeData(dataSource: DataSource): Result<Unit> {
+        return runCatching {
+            val schemaQuery = fetchSchema(dataSource as SQLDataSource)
+            val tableQuery = readQuery(dataSource)
+            val tableDocument = createDocument(tableQuery, schemaQuery, dataSource)
+            val tableRemoved = index.deleteDocument(tableDocument)
+
+            if (!tableRemoved) {
+                error("Failed to remove document")
+            }
+
+            dataSourceRegistry.removeDataSource(dataSource.identifier)
+        }
+    }
+
+    override suspend fun readQuery(dataSource: SQLDataSource): QueryResult.TableQuery {
+        val connection = getConnection(dataSource)
+        val resultSet = executeQuery(connection, dataSource.query)
+        if (resultSet == null) {
             connection.close()
-            QueryResult.TableQuery(
-                tableName = tableName,
-                columnNames = columnNames,
-                rows = rows,
-                resultType = QueryResult.ResultType.SUCCESS,
+            return QueryResult.TableQuery(
+                tableName = "",
+                columnNames = emptySet(),
+                rows = emptyList(),
+                resultType = QueryResult.ResultType.FAILURE,
             )
         }
+        val columnNames = mutableSetOf<String>()
+        val rows = mutableListOf<Map<String, Any?>>()
+        val tableName = resultSet.metaData.getTableName(1)
+        while (resultSet.next()) {
+            val row = mutableMapOf<String, Any?>()
+            for (i in 1..resultSet.metaData.columnCount) {
+                columnNames.add(resultSet.metaData.getColumnName(i))
+                row[resultSet.metaData.getColumnName(i)] = resultSet.getObject(i)
+            }
+            rows.add(row)
+        }
+        connection.close()
+        return QueryResult.TableQuery(
+            tableName = tableName,
+            columnNames = columnNames,
+            rows = rows,
+            resultType = QueryResult.ResultType.SUCCESS,
+        )
     }
 
     override suspend fun writeQuery(
         dataSource: SQLDataSource,
         query: String,
-    ): QueryResult {
+    ): QueryResult.TableQuery {
         val connection = getConnection(dataSource)
         val rowsUpdated = executeUpdate(connection, query)
         connection.close()
@@ -138,6 +157,13 @@ class KogentSQLDataConnector(
             }
         val connection = getConnection(dataSource)
         val result = executeQuery(connection, query)
+        if (result == null) {
+            connection.close()
+            return QueryResult.SchemaQuery(
+                schema = emptyMap(),
+                resultType = QueryResult.ResultType.FAILURE,
+            )
+        }
         val schema = mutableMapOf<String, MutableMap<String, String>>()
         while (result.next()) {
             val tableName = result.getString(1)
@@ -172,6 +198,7 @@ class KogentSQLDataConnector(
             sourceName = source.databaseName,
             dialect = source.databaseType.name,
             schema = schemaQuery.toString(),
+            query = source.query,
             embedding = embeddingModel.getEmbedding(tableQuery.toString()),
         )
     }
@@ -179,12 +206,12 @@ class KogentSQLDataConnector(
     private fun executeQuery(
         connection: Connection,
         query: String,
-    ): ResultSet =
+    ): ResultSet? =
         try {
             val statement = connection.createStatement()
             statement.executeQuery(query)
         } catch (e: Exception) {
-            throw IllegalArgumentException("Failed to execute query: ${e.message}")
+            null
         }
 
     private fun executeUpdate(
@@ -195,7 +222,7 @@ class KogentSQLDataConnector(
             val statement = connection.createStatement()
             statement.executeUpdate(query)
         } catch (e: Exception) {
-            throw IllegalArgumentException("Failed to execute query: ${e.message}")
+            -1
         }
 
     private fun getConnection(dataSource: SQLDataSource): Connection =
@@ -216,7 +243,7 @@ class KogentSQLDataConnector(
             }
             DatabaseType.SQLITE -> {
                 val hikariDataSource = HikariDataSource()
-                hikariDataSource.jdbcUrl = "jdbc:sqlite:${dataSource.host}"
+                hikariDataSource.jdbcUrl = "jdbc:sqlite:${dataSource.databaseName}"
                 hikariDataSource.connection
             }
             DatabaseType.H2 -> {

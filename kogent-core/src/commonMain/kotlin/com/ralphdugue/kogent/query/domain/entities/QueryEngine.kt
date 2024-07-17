@@ -15,9 +15,9 @@ import com.ralphdugue.kogent.retrieval.domain.entities.Retriever
 interface QueryEngine {
     suspend fun processQuery(query: String): String
 
-    suspend fun addDataSource(dataSource: DataSource): Boolean
+    suspend fun addDataSource(dataSource: DataSource)
 
-    suspend fun removeDataSource(dataSource: DataSource): Boolean
+    suspend fun removeDataSource(dataSource: DataSource)
 
-    suspend fun updateDataSource(dataSource: DataSource): Boolean
+    suspend fun updateDataSource(dataSource: DataSource)
 }

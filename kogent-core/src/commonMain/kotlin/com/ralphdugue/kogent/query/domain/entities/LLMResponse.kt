@@ -21,17 +21,17 @@ data class LLMResponse(
 
 @Serializable
 sealed interface Operation {       // Sealed class to define different operation types
-    val dataSource: String   // Identifier of the data source to update
+    val dataSourceId: String   // Identifier of the data source to update
 
     @Serializable
     data class SqlQuery(
-        override val dataSource: String,
+        override val dataSourceId: String,
         val query: String               // The SQL query to execute
     ) : Operation
 
     @Serializable
     data class ApiCall(
-        override val dataSource: String,
+        override val dataSourceId: String,
         val endpoint: String,            // API endpoint to call
         val method: String = "GET",   // HTTP method (default to GET)
         val body: String? = null        // Optional request body (for POST, PUT, etc.)

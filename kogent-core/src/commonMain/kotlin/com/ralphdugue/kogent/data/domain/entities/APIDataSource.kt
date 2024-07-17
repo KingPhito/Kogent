@@ -1,6 +1,6 @@
-package com.ralphdugue.kogent.data.domain.entities.api
+package com.ralphdugue.kogent.data.domain.entities
 
-import com.ralphdugue.kogent.data.domain.entities.DataSource
+import kotlinx.serialization.Serializable
 
 /**
  * A REST API data source.
@@ -14,18 +14,21 @@ import com.ralphdugue.kogent.data.domain.entities.DataSource
  * @param queryParams The query parameters to use (optional).
  * @param body The body of the request (optional).
  */
+@Serializable
 data class APIDataSource(
     override val identifier: String,
+    override val dataSourceType: DataSourceType = DataSourceType.API,
     val baseUrl: String,
     val endpoint: String, // Specific API endpoint to query
     val method: HttpMethod, // HTTP method (GET, POST, etc.)
     val headers: Map<String, String>?, // Headers (optional)
     val queryParams: Map<String, String>? = null, // Query parameters (optional)
-    val body: Map<String, String>? = null,
+    val body: String? = null,
 ) : DataSource {
     /**
      * This enum represents the HTTP method.
      */
+    @Serializable
     enum class HttpMethod {
         GET,
         POST,
@@ -34,6 +37,9 @@ data class APIDataSource(
     }
 }
 
+/**
+ * A builder for the [APIDataSource].
+ */
 class ApiDataSourceBuilder {
     var identifier: String? = null
     var baseUrl: String? = null
@@ -41,7 +47,7 @@ class ApiDataSourceBuilder {
     var method: APIDataSource.HttpMethod? = null
     var headers: Map<String, String>? = null
     var queryParams: Map<String, String>? = null
-    var body: Map<String, String>? = null
+    var body: String? = null
 
     fun build(): APIDataSource {
         // Check for required parameters
@@ -50,6 +56,6 @@ class ApiDataSourceBuilder {
         val end = endpoint ?: throw IllegalArgumentException("Endpoint must be provided")
         val meth = method ?: throw IllegalArgumentException("HTTP method must be provided")
 
-        return APIDataSource(id, url, end, meth, headers, queryParams, body)
+        return APIDataSource(id, DataSourceType.API, url, end, meth, headers, queryParams, body)
     }
 }

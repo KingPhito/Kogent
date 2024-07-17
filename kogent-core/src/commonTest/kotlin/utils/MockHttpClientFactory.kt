@@ -10,7 +10,7 @@ import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-object FakeHttpClientFactory {
+object MockHttpClientFactory {
     fun createClient(
         json: String,
         status: HttpStatusCode,

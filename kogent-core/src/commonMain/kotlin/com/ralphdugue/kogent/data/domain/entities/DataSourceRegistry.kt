@@ -1,9 +1,5 @@
 package com.ralphdugue.kogent.data.domain.entities
 
-import com.ralphdugue.kogent.data.domain.entities.sql.SQLDataSource
-import com.ralphdugue.kogent.data.domain.entities.sql.SQLDataSourceBuilder
-import kotlinx.serialization.Serializable
-
 /**
  * A registry for all the data sources that were added to the Kogent system by the user.
  *
@@ -16,13 +12,34 @@ interface DataSourceRegistry {
      * Returns a list of all the data sources that were added to the Kogent system.
      * @return a list of [DataSource] objects
      */
-    suspend fun getDataSources(): List<DataSource>
+    suspend fun getDataSources(): Result<List<DataSource>>
 
     /**
      * Adds a data source to the registry.
      * @param dataSource The data source to add.
+     * @return success if the data source was added successfully, failure otherwise.
      */
-    suspend fun registerDataSource(dataSource: DataSource)
+    suspend fun registerDataSource(dataSource: DataSource): Result<Unit>
+
+    /**
+     * Gets a [DataSource] by its identifier.
+     * @param identifier The identifier of the data source.
+     */
+    suspend fun getDataSourceById(identifier: String): Result<DataSource>
+
+    /**
+     * Removes a data source from the registry.
+     * @param identifier The identifier of the data source to remove.
+     * @return success if the data source was removed successfully, failure otherwise.
+     */
+    suspend fun removeDataSource(identifier: String): Result<Unit>
+
+    /**
+     * Updates a data source in the registry.
+     * @param dataSource The data source to update.
+     * @return success if the data source was updated successfully, failure otherwise.
+     */
+    suspend fun updateDataSource(dataSource: DataSource): Result<Unit>
 }
 
 /**
