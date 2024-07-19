@@ -13,6 +13,7 @@ import kotlinx.serialization.Serializable
  * @param headers The headers to use (optional).
  * @param queryParams The query parameters to use (optional).
  * @param body The body of the request (optional).
+ * @author Ralph Dugue
  */
 @Serializable
 data class APIDataSource(

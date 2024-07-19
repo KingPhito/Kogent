@@ -3,7 +3,7 @@ package com.ralphdugue.kogent.indexing.adapters
 import com.alibaba.fastjson.JSONObject
 import com.ralphdugue.kogent.indexing.domain.entities.Document
 import com.ralphdugue.kogent.indexing.domain.entities.Index
-import com.ralphdugue.kogent.indexing.domain.entities.IndexConfig.VectorStoreConfig
+import com.ralphdugue.kogent.indexing.domain.entities.VectorStoreConfig
 import io.milvus.param.MetricType
 import io.milvus.v2.client.MilvusClientV2
 import io.milvus.v2.service.collection.request.CreateCollectionReq
@@ -109,6 +109,7 @@ class MilvusIndex(
                 .fluentPut("id", document.id)
                 .fluentPut("sourceName", document.sourceName)
                 .fluentPut("sourceType", document.sourceType)
+                .fluentPut("text", document.text)
                 .fluentPut("vector", document.embedding)
         return when (document) {
             is Document.SQLDocument -> {
@@ -122,9 +123,10 @@ class MilvusIndex(
     }
 
     private fun createDocument(searchResult: SearchResult): Document {
+        val id = searchResult.id as String
         val sourceName = searchResult.entity["sourceName"] as String
         val sourceType = searchResult.entity["sourceType"] as String
-        val id = searchResult.id as String
+        val text = searchResult.entity["text"] as String
         val embedding = searchResult.entity["embedding"] as List<Float>
         return when (sourceType) {
             "SQL" -> {
@@ -137,10 +139,11 @@ class MilvusIndex(
                     dialect = dialect,
                     schema = schema,
                     query = query,
+                    text = text,
                     embedding = embedding,
                 )
             }
-            "API" -> Document.APIDocument(id = id, sourceName = sourceName, embedding = embedding)
+            "API" -> Document.APIDocument(id = id, sourceName = sourceName, text = text, embedding = embedding)
             else -> throw IllegalArgumentException("Invalid source type")
         }
     }
@@ -171,7 +174,7 @@ class MilvusIndex(
                 .builder()
                 .collectionName(document.sourceName)
                 .dimension(document.embedding.size)
-                .metricType(MetricType.L2.name)
+                .metricType(MetricType.COSINE.name)
                 .build(),
         )
         return client.getLoadState(GetLoadStateReq.builder().collectionName(document.sourceName).build())

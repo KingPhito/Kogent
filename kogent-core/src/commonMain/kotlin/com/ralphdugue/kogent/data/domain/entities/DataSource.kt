@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
  * A data source.
  *
  * Users provide data sources to the Kogent system. These data sources can be of different types,
- * such as SQL databases, CSV files, or other data sources. They are used to build context
+ * such as SQL databases, PDF files, or APIs. They are used to build context
  * for the Kogent system to make queries with.
  * @author Ralph Dugue
  */
@@ -17,6 +17,9 @@ sealed interface DataSource {
      */
     val identifier: String
 
+    /**
+     * The type of the data source.
+     */
     val dataSourceType: DataSourceType
 }
 

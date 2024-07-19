@@ -19,10 +19,8 @@ VALUES (?,?,?);
 update:
 UPDATE CachedDataSources
 SET content = ?
-WHERE identifier = ?
-LIMIT 1;
+WHERE identifier = ?;
 
 delete:
 DELETE FROM CachedDataSources
-WHERE identifier = ?
-LIMIT 1;
+WHERE identifier = ?;

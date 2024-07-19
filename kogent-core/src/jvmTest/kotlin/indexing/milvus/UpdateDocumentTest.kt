@@ -3,6 +3,7 @@ package indexing.milvus
 import com.ralphdugue.kogent.indexing.adapters.MilvusIndex
 import com.ralphdugue.kogent.indexing.domain.entities.Document
 import com.ralphdugue.kogent.indexing.domain.entities.IndexConfig
+import com.ralphdugue.kogent.indexing.domain.entities.VectorStoreConfig
 import com.ralphdugue.kogent.indexing.domain.entities.VectorStoreOptions
 import common.BaseTest
 import io.milvus.v2.client.MilvusClientV2
@@ -15,6 +16,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.Assertions.assertEquals
+import utils.FakeDocumentFactory
 import utils.RandomPrimitivesFactory
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -31,7 +33,7 @@ class UpdateDocumentTest : BaseTest() {
         subject =
             MilvusIndex(
                 config =
-                    IndexConfig.VectorStoreConfig(
+                    VectorStoreConfig(
                         connectionString = "localhost:19530",
                         vectorDatabaseType = VectorStoreOptions.MILVUS,
                     ),
@@ -47,14 +49,7 @@ class UpdateDocumentTest : BaseTest() {
     @Test
     fun `updateDocument should return true when document is updated successfully`() =
         runTest {
-            val document =
-                Document.SQLDocument(
-                    id = RandomPrimitivesFactory.genRandomString(),
-                    sourceName = RandomPrimitivesFactory.genRandomString(),
-                    dialect = RandomPrimitivesFactory.genRandomString(),
-                    schema = RandomPrimitivesFactory.genRandomString(),
-                    embedding = RandomPrimitivesFactory.genRandomFloatList(),
-                )
+            val document = FakeDocumentFactory.createRandomSQLDocument()
             val mockResponse = UpsertResp.builder().upsertCnt(1).build()
             every { clientV2.upsert(any()) } returns mockResponse
 
@@ -66,14 +61,7 @@ class UpdateDocumentTest : BaseTest() {
     @Test
     fun `updateDocument should return false when document is not updated successfully`() =
         runTest {
-            val document =
-                Document.SQLDocument(
-                    id = RandomPrimitivesFactory.genRandomString(),
-                    sourceName = RandomPrimitivesFactory.genRandomString(),
-                    dialect = RandomPrimitivesFactory.genRandomString(),
-                    schema = RandomPrimitivesFactory.genRandomString(),
-                    embedding = RandomPrimitivesFactory.genRandomFloatList(),
-                )
+            val document = FakeDocumentFactory.createRandomSQLDocument()
             every { clientV2.upsert(any()) } throws Exception()
 
             val result = subject.updateDocument(document)

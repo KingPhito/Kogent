@@ -13,14 +13,17 @@ class KeywordRetriever(
     private val embeddingModel: EmbeddingModel,
     private val dataSourceRegistry: DataSourceRegistry,
 ) : Retriever {
-    override suspend fun retrieve(query: String): String {
-        val sourceName = selectDataSource(query)
-        val documents =
-            index.searchIndex(
-                sourceName = sourceName,
-                query = embeddingModel.getEmbedding(query),
+    override suspend fun retrieve(query: String): Result<String> {
+        return runCatching {
+            val dataSourceName = selectDataSource(query)
+            embeddingModel.getEmbedding(query).fold(
+                onSuccess = { embedding ->
+                    val documents = index.searchIndex(dataSourceName, embedding)
+                    buildContext(query, documents)
+                },
+                onFailure = { throw it }
             )
-        return buildContext(query, documents)
+        }
     }
 
     private suspend fun selectDataSource(query: String): String {
@@ -58,6 +61,7 @@ class KeywordRetriever(
                     // No additional information for API documents
                 }
             }
+            stringBuilder.appendLine("Text: ${document.text}")
             stringBuilder.appendLine("Embedding: ${document.embedding}")
             stringBuilder.appendLine("-----------------------------")
         }

@@ -24,7 +24,13 @@ class KogentQueryEngine(
     private val sqlDataConnector: SQLDataConnector,
 ) : QueryEngine {
     override suspend fun processQuery(query: String): String {
-        val context = retriever.retrieve(query)
+        val retrievedResult = retriever.retrieve(query)
+        val context = retrievedResult.getOrNull()
+        if (context == null) {
+            val error = retrievedResult.exceptionOrNull()
+            Logger.e { "Failed to retrieve context for query: $query - ${error?.localizedMessage}" }
+            return "There was an error processing the request: ${error?.localizedMessage}"
+        }
         val prompt = generatePrompt(query, context)
         val response = llModel.query(prompt)
         val llmResponse = parseLLMResponse(response)
@@ -43,7 +49,7 @@ class KogentQueryEngine(
                     return llmResponse.answer
                 },
                 onFailure = {
-                    Logger.e(it) { "Failed to update data source" }
+                    Logger.e(it) { "Failed to update data source: ${it.localizedMessage}" }
                     return "There was an error processing the request: ${it.localizedMessage}"
                 }
             )

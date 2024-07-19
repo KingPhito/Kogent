@@ -12,12 +12,15 @@ import com.ralphdugue.kogent.data.adapters.registry.LocalDataSourceRegistry
 import com.ralphdugue.kogent.data.domain.entities.DataSourceRegistry
 import com.ralphdugue.kogent.data.domain.entities.ExternalRegistry
 import com.ralphdugue.kogent.data.domain.entities.LocalRegistry
+import com.ralphdugue.kogent.data.domain.entities.embedding.APIEmbeddingConfig
 import com.ralphdugue.kogent.data.domain.entities.embedding.EmbeddingConfig
 import com.ralphdugue.kogent.data.domain.entities.embedding.EmbeddingModel
+import com.ralphdugue.kogent.data.domain.entities.embedding.HuggingFaceEmbeddingConfig
 import com.ralphdugue.kogent.data.domain.entities.sql.SQLDataConnector
 import com.ralphdugue.kogent.indexing.domain.entities.Index
 import com.ralphdugue.kogent.indexing.utils.IndexFactory
 import com.ralphdugue.kogent.query.adapters.HuggingFaceLLModel
+import com.ralphdugue.kogent.query.domain.entities.HuggingFaceLLModelConfig
 import com.ralphdugue.kogent.query.domain.entities.LLModel
 import com.ralphdugue.kogent.query.domain.entities.LLModelConfig
 import io.ktor.client.HttpClient
@@ -71,14 +74,14 @@ class KogentModule {
     @Single
     fun provideLLModel(client: HttpClient): LLModel =
         when (val llModelConfig = config.llModelConfig) {
-            is LLModelConfig.HuggingFaceLLModelConfig -> HuggingFaceLLModel(llModelConfig, client)
+            is HuggingFaceLLModelConfig -> HuggingFaceLLModel(llModelConfig, client)
         }
 
     @Single
     fun provideEmbeddingModel(client: HttpClient): EmbeddingModel =
         when (val embeddingConfig = config.embeddingConfig) {
-            is EmbeddingConfig.APIEmbeddingConfig -> APIEmbeddingModel(embeddingConfig, client)
-            is EmbeddingConfig.HuggingFaceEmbeddingConfig -> HuggingFaceEmbeddingModel(embeddingConfig, client)
+            is APIEmbeddingConfig -> APIEmbeddingModel(embeddingConfig, client)
+            is HuggingFaceEmbeddingConfig -> HuggingFaceEmbeddingModel(embeddingConfig, client)
         }
 
     @Single

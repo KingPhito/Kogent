@@ -5,6 +5,7 @@ import com.ralphdugue.kogent.data.adapters.registry.LocalDataSourceRegistry
 import com.ralphdugue.kogent.data.domain.entities.DataSourceRegistry
 import common.BaseTest
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.encodeToString
@@ -41,7 +42,7 @@ class GetDataSourcesTest : BaseTest() {
                     )
                 })
             }
-            jobs.forEach { it.join() }
+            jobs.joinAll()
             val actual = subject.getDataSources()
             assert(actual.isSuccess)
             assert(actual.getOrNull() == expected)

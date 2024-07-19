@@ -17,5 +17,5 @@ interface Retriever {
      * @param query the query to retrieve data for
      * @return a string that represents the context for a [QueryEngine] to use.
      */
-    suspend fun retrieve(query: String): String
+    suspend fun retrieve(query: String): Result<String>
 }

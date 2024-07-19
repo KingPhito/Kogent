@@ -1,4 +1,5 @@
 import com.ralphdugue.kogent.Kogent
+import com.ralphdugue.kogent.data.domain.entities.APIDataSource
 import com.ralphdugue.kogent.indexing.domain.entities.VectorStoreOptions
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -10,12 +11,15 @@ fun main() {
         apiDataSource {
             identifier = "test"
             baseUrl = "http://localhost:8080"
+            endpoint = "/test"
+            method = APIDataSource.HttpMethod.GET
+            headers = mapOf()
         }
         huggingFaceEmbeddingConfig {
-
+            apiToken = "test"
         }
         huggingFaceLLModelConfig {
-
+            apiToken = "test"
         }
         vectorIndexConfig {
             connectionString = "localhost:19530"

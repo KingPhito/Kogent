@@ -40,7 +40,7 @@ class WriteQueryTest : BaseTest() {
     @BeforeTest
     override fun setUp() {
         super.setUp()
-        coEvery { embeddingModel.getEmbedding(any()) } returns RandomPrimitivesFactory.genRandomFloatList()
+        coEvery { embeddingModel.getEmbedding(any()) } returns Result.success(RandomPrimitivesFactory.genRandomFloatList())
         coEvery { index.indexDocument(any()) } returns true
         subject = KogentSQLDataConnector(embeddingModel, index, dataSourceRegistry)
         dbConnection = FakeDatabaseFactory.createFakeDatabase(dbName, dbUser, dbPassword)

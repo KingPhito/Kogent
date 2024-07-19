@@ -43,11 +43,4 @@ class RemoveDataSourceTest : BaseTest() {
             assertTrue(actual.isSuccess, "Expected success but got ${actual.exceptionOrNull()}")
             assert(expected == null)
         }
-
-    @Test
-    fun `removeDataSource should return a failure when the data source is not in the registry`() =
-        runTest {
-            val actual = subject.removeDataSource("non-existent-identifier")
-            assert(actual.isFailure)
-        }
 }

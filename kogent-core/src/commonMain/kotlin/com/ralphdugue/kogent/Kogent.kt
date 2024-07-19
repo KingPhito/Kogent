@@ -1,12 +1,10 @@
 package com.ralphdugue.kogent
 
 import com.ralphdugue.kogent.config.KogentConfigBuilder
+import com.ralphdugue.kogent.data.domain.entities.DataSource
 import com.ralphdugue.kogent.di.modules.KogentModule
 import com.ralphdugue.kogent.query.domain.entities.QueryEngine
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
@@ -32,12 +30,29 @@ object Kogent {
             }
         }
         runBlocking {
-            coroutineScope {
-                config.dataSources.forEach { dataSource ->
-                    launch(Dispatchers.IO) {
+            val deferredJobs = config.dataSources.map { dataSource ->
+                async(Dispatchers.IO + NonCancellable) {
+                    try {
                         getQueryEngine().addDataSource(dataSource)
+                        Result.success(dataSource)
+                    } catch (e: Exception) {
+                        Result.failure(e)
                     }
                 }
+            }
+
+            val results: List<Result<DataSource>> = deferredJobs.awaitAll()
+
+            // Process results
+            results.forEach { result ->
+                result.fold(
+                    onSuccess = { dataSource ->
+                        println("Successfully added data source: ${dataSource.identifier}")
+                    },
+                    onFailure = { exception ->
+                        println("Failed to add data source: $exception")
+                    }
+                )
             }
         }
     }

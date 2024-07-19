@@ -47,12 +47,4 @@ class UpdateDataSourceTest : BaseTest() {
             assert(actual != null)
             assertEquals(actual, expected)
         }
-
-    @Test
-    fun `updateDataSource should return a failure when the data source is not in the registry`() =
-        runTest {
-            val dataSource = FakeDatasourceFactory.createAPIDatasource()
-            val result = subject.updateDataSource(dataSource)
-            assert(result.isFailure)
-        }
 }

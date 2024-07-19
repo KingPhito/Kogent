@@ -38,6 +38,9 @@ data class SQLDataSource(
     }
 }
 
+/**
+ * This class is a builder for [SQLDataSource].
+ */
 class SQLDataSourceBuilder {
     var identifier: String? = null
     var databaseType: SQLDataSource.DatabaseType? = null

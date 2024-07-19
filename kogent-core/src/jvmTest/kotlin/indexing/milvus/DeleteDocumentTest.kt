@@ -3,6 +3,7 @@ package indexing.milvus
 import com.ralphdugue.kogent.indexing.adapters.MilvusIndex
 import com.ralphdugue.kogent.indexing.domain.entities.Document
 import com.ralphdugue.kogent.indexing.domain.entities.IndexConfig
+import com.ralphdugue.kogent.indexing.domain.entities.VectorStoreConfig
 import com.ralphdugue.kogent.indexing.domain.entities.VectorStoreOptions
 import common.BaseTest
 import io.milvus.v2.client.MilvusClientV2
@@ -14,6 +15,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.Assertions.assertEquals
+import utils.FakeDocumentFactory
 import utils.RandomPrimitivesFactory
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -30,7 +32,7 @@ class DeleteDocumentTest : BaseTest() {
         subject =
             MilvusIndex(
                 config =
-                    IndexConfig.VectorStoreConfig(
+                    VectorStoreConfig(
                         connectionString = "localhost:19530",
                         vectorDatabaseType = VectorStoreOptions.MILVUS,
                     ),
@@ -46,14 +48,7 @@ class DeleteDocumentTest : BaseTest() {
     @Test
     fun `deleteDocument should return true when document is deleted successfully`() =
         runTest {
-            val document =
-                Document.SQLDocument(
-                    id = RandomPrimitivesFactory.genRandomString(),
-                    sourceName = RandomPrimitivesFactory.genRandomString(),
-                    dialect = RandomPrimitivesFactory.genRandomString(),
-                    schema = RandomPrimitivesFactory.genRandomString(),
-                    embedding = RandomPrimitivesFactory.genRandomFloatList(),
-                )
+            val document = FakeDocumentFactory.createRandomSQLDocument()
             val mockResponse = DeleteResp.builder().deleteCnt(1).build()
             every { clientV2.delete(any()) } returns mockResponse
             val result = subject.deleteDocument(document)
@@ -63,14 +58,7 @@ class DeleteDocumentTest : BaseTest() {
     @Test
     fun `deleteDocument should return false when document is not deleted successfully`() =
         runTest {
-            val document =
-                Document.SQLDocument(
-                    id = RandomPrimitivesFactory.genRandomString(),
-                    sourceName = RandomPrimitivesFactory.genRandomString(),
-                    dialect = RandomPrimitivesFactory.genRandomString(),
-                    schema = RandomPrimitivesFactory.genRandomString(),
-                    embedding = RandomPrimitivesFactory.genRandomFloatList(),
-                )
+            val document = FakeDocumentFactory.createRandomSQLDocument()
             val mockResponse = DeleteResp.builder().deleteCnt(0).build()
             every { clientV2.delete(any()) } returns mockResponse
             val result = subject.deleteDocument(document)

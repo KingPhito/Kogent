@@ -16,20 +16,23 @@ interface LLModel {
     suspend fun query(text: String): String
 }
 
-sealed interface LLModelConfig {
-    data class HuggingFaceLLModelConfig(
-        val model: String = "all-MiniLM-L6-v2",
-        val apiToken: String,
-    ) : LLModelConfig
-}
+sealed interface LLModelConfig
+data class HuggingFaceLLModelConfig(
+    val endpoint: String = "all-MiniLM-L6-v2",
+    val apiToken: String,
+) : LLModelConfig
 
+
+/**
+ * A builder for the [HuggingFaceLLModelConfig].
+ */
 class HuggingFaceLLModelConfigBuilder {
-    var model: String = "all-MiniLM-L6-v2"
+    var model: String = "/models/deepset/roberta-base-squad2"
     var apiToken: String? = null
 
-    fun build(): LLModelConfig.HuggingFaceLLModelConfig =
-        LLModelConfig.HuggingFaceLLModelConfig(
-            model = model,
+    fun build(): HuggingFaceLLModelConfig =
+        HuggingFaceLLModelConfig(
+            endpoint = model,
             apiToken = apiToken ?: throw IllegalStateException("apiToken must be set"),
         )
 }

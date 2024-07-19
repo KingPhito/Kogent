@@ -2,12 +2,12 @@ package com.ralphdugue.kogent.query.adapters
 
 import com.ralphdugue.kogent.data.domain.entities.APIDataSource
 import com.ralphdugue.kogent.data.domain.entities.api.getResponse
+import com.ralphdugue.kogent.query.domain.entities.HuggingFaceLLModelConfig
 import com.ralphdugue.kogent.query.domain.entities.LLModel
-import com.ralphdugue.kogent.query.domain.entities.LLModelConfig
 import io.ktor.client.*
 
 class HuggingFaceLLModel(
-    private val config: LLModelConfig.HuggingFaceLLModelConfig,
+    private val config: HuggingFaceLLModelConfig,
     private val client: HttpClient,
 ) : LLModel {
     override suspend fun query(text: String): String {
@@ -20,11 +20,11 @@ class HuggingFaceLLModel(
 
     private fun createDataSource(text: String): APIDataSource =
         APIDataSource(
-            identifier = config.model,
+            identifier = config.endpoint,
             baseUrl = "https://api-inference.huggingface.co",
             headers = mapOf("Authorization" to "Bearer ${config.apiToken}"),
             method = APIDataSource.HttpMethod.POST,
-            endpoint = "/models/${config.model}",
+            endpoint = config.endpoint,
             body = text,
         )
 }

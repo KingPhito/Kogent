@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject
 import com.ralphdugue.kogent.indexing.domain.entities.Document
 import com.ralphdugue.kogent.indexing.domain.entities.Index
 import com.ralphdugue.kogent.indexing.domain.entities.IndexConfig
+import com.ralphdugue.kogent.indexing.domain.entities.VectorStoreConfig
 import io.milvus.param.MetricType
 import io.milvus.v2.client.MilvusClientV2
 import io.milvus.v2.service.collection.request.CreateCollectionReq
@@ -16,7 +17,7 @@ import io.milvus.v2.service.vector.request.SearchReq
 import io.milvus.v2.service.vector.request.UpsertReq
 import io.milvus.v2.service.vector.response.SearchResp
 
-actual fun buildMilvusIndex(config: IndexConfig.VectorStoreConfig): Index =
+actual fun buildMilvusIndex(config: VectorStoreConfig): Index =
     MilvusIndex(
         config = config,
         client =
@@ -30,7 +31,7 @@ actual fun buildMilvusIndex(config: IndexConfig.VectorStoreConfig): Index =
 
 
 class MilvusIndex(
-    private val config: IndexConfig.VectorStoreConfig,
+    private val config: VectorStoreConfig,
     private val client: MilvusClientV2,
 ) : Index {
     override suspend fun indexDocument(document: Document): Boolean =
@@ -110,10 +111,13 @@ class MilvusIndex(
                 .fluentPut("id", document.id)
                 .fluentPut("sourceName", document.sourceName)
                 .fluentPut("sourceType", document.sourceType)
+                .fluentPut("text", document.text)
                 .fluentPut("vector", document.embedding)
         return when (document) {
             is Document.SQLDocument -> {
                 data["dialect"] = document.dialect
+                data["schema"] = document.schema
+                data["query"] = document.query
                 listOf(data)
             }
             is Document.APIDocument -> TODO()
@@ -121,23 +125,27 @@ class MilvusIndex(
     }
 
     private fun createDocument(searchResult: SearchResp.SearchResult): Document {
+        val id = searchResult.id as String
         val sourceName = searchResult.entity["sourceName"] as String
         val sourceType = searchResult.entity["sourceType"] as String
-        val id = searchResult.id as String
+        val text = searchResult.entity["text"] as String
         val embedding = searchResult.entity["embedding"] as List<Float>
         return when (sourceType) {
             "SQL" -> {
                 val dialect = searchResult.entity["dialect"] as String
                 val schema = searchResult.entity["schema"] as String
+                val query = searchResult.entity["query"] as String
                 Document.SQLDocument(
                     id = id,
                     sourceName = sourceName,
                     dialect = dialect,
                     schema = schema,
+                    query = query,
+                    text = text,
                     embedding = embedding,
                 )
             }
-            "API" -> Document.APIDocument(id = id, sourceName = sourceName, embedding = embedding)
+            "API" -> Document.APIDocument(id = id, sourceName = sourceName, text = text, embedding = embedding)
             else -> throw IllegalArgumentException("Invalid source type")
         }
     }

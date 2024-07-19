@@ -4,6 +4,8 @@ package com.ralphdugue.kogent.indexing.domain.entities
  * An Index
  *
  * An Index stores data from a [Document] in a way that makes it easy to search and retrieve.
+ * It stores a mapping of embeddings to document fields.
+ * @author Ralph Dugue
  */
 interface Index {
     /**

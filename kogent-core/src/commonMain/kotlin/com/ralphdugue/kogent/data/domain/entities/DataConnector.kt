@@ -1,28 +1,31 @@
 package com.ralphdugue.kogent.data.domain.entities
 
 /**
- * This is the interface for all DataConnectors classes to inherit from.
- * DataConnectors are classes that are responsible for sending queries to a data source.
+ * A data connector.
+ *
+ * Data connectors are classes that are used to connect to data sources and fetch data from them.
+ * They are also used to update data sources and delete data from them, as well as from the [Index].
+ * @author Ralph Dugue
  */
 interface DataConnector {
     /**
-     * This function fetches data from a data source, and adds it to the index.
+     * This function fetches data from a [DataSource], and adds it to the index.
      * @param dataSource The data source to fetch data from.
-     * @return The result of the index operation.
+     * @return success if the data was fetched and added to the index, failure otherwise.
      */
     suspend fun indexData(dataSource: DataSource): Result<Unit>
 
     /**
-     * This function updates the data of a data source.
+     * This function updates a [DataSource].
      * @param dataSource The data source to update the data of.
-     * @return The result of the query.
+     * @return success if the data was updated, failure otherwise.
      */
     suspend fun updateData(dataSource: DataSource): Result<Unit>
 
     /**
      * This function deletes a data source from the index.
      * @param dataSource The data source to delete data.
-     * @return The result of the delete operation.
+     * @return success if the data was deleted, failure otherwise.
      */
     suspend fun removeData(dataSource: DataSource): Result<Unit>
 

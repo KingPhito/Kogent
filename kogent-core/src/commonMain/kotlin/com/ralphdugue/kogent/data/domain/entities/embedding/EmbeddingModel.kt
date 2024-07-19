@@ -12,19 +12,25 @@ import com.ralphdugue.kogent.indexing.domain.entities.Index
  * @author Ralph Dugue
  */
 interface EmbeddingModel {
-    suspend fun getEmbedding(text: String): List<Float>
+    /**
+     * Gets the embedding for the given text.
+     * @param text The text to get the embedding for.
+     * @return The embedding for the text.
+     */
+    suspend fun getEmbedding(text: String): Result<List<Float>>
 }
 
-sealed interface EmbeddingConfig {
-    data class APIEmbeddingConfig(
-        val dataSource: APIDataSource,
-    ) : EmbeddingConfig
+sealed interface EmbeddingConfig
 
-    data class HuggingFaceEmbeddingConfig(
-        val model: String = "all-MiniLM-L6-v2",
-        val apiToken: String,
-    ) : EmbeddingConfig
-}
+data class APIEmbeddingConfig(
+    val dataSource: APIDataSource,
+) : EmbeddingConfig
+
+data class HuggingFaceEmbeddingConfig(
+    val model: String = "all-MiniLM-L6-v2",
+    val apiToken: String,
+) : EmbeddingConfig
+
 
 class APIEmbeddingModelConfigBuilder {
     private var dataSource: APIDataSource? = null
@@ -33,18 +39,21 @@ class APIEmbeddingModelConfigBuilder {
         dataSource = ApiDataSourceBuilder().apply(block).build()
     }
 
-    fun build(): EmbeddingConfig.APIEmbeddingConfig =
-        EmbeddingConfig.APIEmbeddingConfig(
+    fun build(): APIEmbeddingConfig =
+        APIEmbeddingConfig(
             dataSource = dataSource ?: throw IllegalStateException("dataSource must be set"),
         )
 }
 
+/**
+ * A builder for the [HuggingFaceEmbeddingConfig].
+ */
 class HuggingFaceEmbeddingModelConfigBuilder {
     var model: String = "all-MiniLM-L6-v2"
     var apiToken: String? = null
 
-    fun build(): EmbeddingConfig.HuggingFaceEmbeddingConfig =
-        EmbeddingConfig.HuggingFaceEmbeddingConfig(
+    fun build(): HuggingFaceEmbeddingConfig =
+        HuggingFaceEmbeddingConfig(
             model = model,
             apiToken = apiToken ?: throw IllegalStateException("apiToken must be set"),
         )

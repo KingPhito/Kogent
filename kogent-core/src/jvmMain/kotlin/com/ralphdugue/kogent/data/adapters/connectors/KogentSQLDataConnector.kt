@@ -192,6 +192,10 @@ class KogentSQLDataConnector(
         if (tableQuery.resultType == QueryResult.ResultType.FAILURE) {
             throw IllegalArgumentException("Cannot create document from failed query result")
         }
+        val embedding = embeddingModel.getEmbedding(tableQuery.toString()).fold(
+            onSuccess = { it },
+            onFailure = { throw it },
+        )
         return Document.SQLDocument(
             id = source.identifier,
             sourceType = "SQL",
@@ -199,7 +203,8 @@ class KogentSQLDataConnector(
             dialect = source.databaseType.name,
             schema = schemaQuery.toString(),
             query = source.query,
-            embedding = embeddingModel.getEmbedding(tableQuery.toString()),
+            text = tableQuery.toString(),
+            embedding = embedding,
         )
     }
 

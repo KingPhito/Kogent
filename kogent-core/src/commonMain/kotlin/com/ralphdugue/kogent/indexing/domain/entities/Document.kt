@@ -4,6 +4,7 @@ sealed interface Document {
     val id: String
     val sourceType: String
     val sourceName: String
+    val text: String
     val embedding: List<Float>
 
     data class SQLDocument(
@@ -13,15 +14,19 @@ sealed interface Document {
         val dialect: String,
         val schema: String,
         val query: String,
+        override val text: String,
         override val embedding: List<Float>,
-    ) : Document
+    ) : Document {
+    }
 
     data class APIDocument(
         override val id: String,
         override val sourceType: String = SourceType.API.name,
         override val sourceName: String,
+        override val text: String,
         override val embedding: List<Float>,
-    ) : Document
+    ) : Document {
+    }
 }
 
 enum class SourceType {

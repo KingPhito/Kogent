@@ -19,8 +19,8 @@ Kogent is built on top of the following four core components:
    Users can define their data sources and a base query to retrieve data from them. This allows Kogent to index and 
    retrieve data from multiple sources in a unified manner.
 2. **Indexing**: Keeping with the theme of flexibility, Kogent allows users to choose from a variety of 
-   indexing engines to suit their needs. The indexing engine is responsible for processing and storing the data 
-   retrieved from the data sources in a format that is optimized for search and retrieval.
+   indexing tools, including an inverted index Elasticsearch, or a vector database like Milvus. The indexing component
+    is responsible for storing data and performing semantic search on user queries.
 3. **Retriever**: The Retriever is  responsible for finding relevant information within 
    the index based on the user's query. It's designed to be flexible and utilize several retrieval strategies. It 
    provides a context for the language model to generate responses.
