@@ -5,6 +5,10 @@ import com.ralphdugue.kogent.data.domain.entities.embedding.EmbeddingModel
 import com.ralphdugue.kogent.indexing.domain.entities.Document
 import com.ralphdugue.kogent.indexing.domain.entities.Index
 import com.ralphdugue.kogent.retrieval.domain.entities.Retriever
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
 import org.koin.core.annotation.Single
 
 @Single
@@ -15,10 +19,10 @@ class KeywordRetriever(
 ) : Retriever {
     override suspend fun retrieve(query: String): Result<String> {
         return runCatching {
-            val dataSourceName = selectDataSource(query)
+            val dataSourceName = selectDataSources(query)
             embeddingModel.getEmbedding(query).fold(
                 onSuccess = { embedding ->
-                    val documents = index.searchIndex(dataSourceName, embedding)
+                    val documents = getDocuments(dataSourceName, embedding)
                     buildContext(query, documents)
                 },
                 onFailure = { throw it }
@@ -26,16 +30,30 @@ class KeywordRetriever(
         }
     }
 
-    private suspend fun selectDataSource(query: String): String {
+    private suspend fun getDocuments(dataSourceNames: List<String>, embedding: List<Float>): List<Document> {
+        val documents = mutableListOf<Document>()
+
+        supervisorScope {
+            dataSourceNames.forEach {
+                launch {
+                    documents.addAll(index.searchIndex(it, embedding))
+                }
+            }
+        }
+        return documents
+    }
+
+    private suspend fun selectDataSources(query: String): List<String> {
         val lowercaseQuery = query.lowercase()
+        val dataSourceNames = mutableListOf<String>()
         dataSourceRegistry.getDataSources().fold(
             onSuccess = { dataSources ->
                 dataSources.forEach { dataSource ->
                     if (lowercaseQuery.contains(dataSource.identifier.lowercase())) {
-                        return dataSource.identifier
+                        dataSourceNames.add(dataSource.identifier)
                     }
                 }
-                return dataSources.first().identifier
+                return dataSourceNames
             },
             onFailure = { throw it }
         )
