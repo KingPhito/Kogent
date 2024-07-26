@@ -54,8 +54,8 @@ class KogentQueryEngine(
                     )
                 },
                 onFailure = {
-                    Logger.e(it) { "Failed to update data source: ${it.localizedMessage}" }
-                    "There was an error processing the request: ${it.localizedMessage}"
+                    Logger.e(it) { "Failed to find data source: ${it.localizedMessage}" }
+                    "There was an error finding the data source: ${it.localizedMessage}"
                 }
             )
         } else llmResponse.answer
@@ -116,7 +116,9 @@ class KogentQueryEngine(
         return try {
             PromptUtils.json.decodeFromString<LLMResponse>(response)
         } catch (e: Exception) {
-            LLMResponse(answer = response, operation = null, needsUpdate = false)
+            Logger.e(e) { "Failed to parse LLM response: ${e.localizedMessage}" }
+            val answer = "Received an invalid response from the model: $response. \nPlease try again."
+            LLMResponse(answer = answer, operation = null, needsUpdate = false)
         }
     }
 

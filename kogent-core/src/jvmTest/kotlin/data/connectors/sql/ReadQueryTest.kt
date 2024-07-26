@@ -120,7 +120,8 @@ class ReadQueryTest : BaseTest() {
                         mapOf("id" to 2, "NAME" to "Bob", "AGE" to 30),
                     ),
                 )
-            assertEquals(expected.toString().uppercase(), actual.toString().uppercase())
+            assertTrue(actual.isSuccess, "Expected Result.success but was ${actual.exceptionOrNull()}")
+            assertEquals(expected.toString().uppercase(), actual.getOrNull().toString().uppercase())
         }
 
 }

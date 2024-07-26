@@ -2,6 +2,7 @@ package data.embedding
 
 import com.ralphdugue.kogent.data.adapters.embedding.HuggingFaceEmbeddingModel
 import com.ralphdugue.kogent.data.domain.entities.embedding.EmbeddingConfig
+import com.ralphdugue.kogent.data.domain.entities.embedding.EmbeddingModel
 import com.ralphdugue.kogent.data.domain.entities.embedding.HuggingFaceEmbeddingConfig
 import common.BaseTest
 import io.ktor.client.HttpClient
@@ -15,7 +16,7 @@ import kotlin.test.assertTrue
 
 class HuggingFaceEmbeddingModelTest : BaseTest() {
     private lateinit var httpClient: HttpClient
-    private lateinit var subject: HuggingFaceEmbeddingModel
+    private lateinit var subject: EmbeddingModel
 
     @Test
     fun `getEmbedding should return a list of floats when successful`()  =
