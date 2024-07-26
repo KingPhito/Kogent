@@ -30,6 +30,7 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.koin.core.annotation.ComponentScan
+import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Module
 import org.koin.core.annotation.Single
 
@@ -39,7 +40,7 @@ class KogentModule {
     lateinit var config: KogentConfig
     var appContextProvider: AppContextProvider? = null
 
-    @Single
+    @Factory
     fun provideHttpClient(): HttpClient =
         HttpClient(CIO) {
             expectSuccess = true
@@ -77,17 +78,17 @@ class KogentModule {
             is HuggingFaceLLModelConfig -> HuggingFaceLLModel(llModelConfig, client)
         }
 
-    @Single
+    @Factory
     fun provideEmbeddingModel(client: HttpClient): EmbeddingModel =
         when (val embeddingConfig = config.embeddingConfig) {
             is APIEmbeddingConfig -> APIEmbeddingModel(embeddingConfig, client)
             is HuggingFaceEmbeddingConfig -> HuggingFaceEmbeddingModel(embeddingConfig, client)
         }
 
-    @Single
+    @Factory
     fun provideIndex(): Index = IndexFactory.createIndex(config.indexConfig)
 
-    @Single
+    @Factory
     fun provideSQLDataConnector(
         embeddingModel: EmbeddingModel,
         index: Index,

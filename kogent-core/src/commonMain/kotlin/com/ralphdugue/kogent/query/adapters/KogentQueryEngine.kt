@@ -13,6 +13,7 @@ import com.ralphdugue.kogent.query.domain.entities.Operation
 import com.ralphdugue.kogent.query.domain.entities.QueryEngine
 import com.ralphdugue.kogent.query.utils.PromptUtils
 import com.ralphdugue.kogent.retrieval.domain.entities.Retriever
+import com.ralphdugue.kogent.retrieval.utils.RetrieverUtils
 import org.koin.core.annotation.Single
 
 @Single(binds = [QueryEngine::class])
@@ -25,20 +26,18 @@ class KogentQueryEngine(
 ) : QueryEngine {
     override suspend fun processQuery(query: String): String {
         val retrievedResult = retriever.retrieve(query)
-        val context = retrievedResult.getOrNull()
-        if (context == null) {
-            val error = retrievedResult.exceptionOrNull()
-            Logger.e { "Failed to retrieve context for query: $query - ${error?.localizedMessage}" }
-            return "There was an error processing the request: ${error?.localizedMessage}"
-        }
-        val prompt = generatePrompt(query, context)
+        val documents = retrievedResult.getOrElse {
+            Logger.e(it) { "Failed to retrieve documents: ${it.localizedMessage}" }
+            return "There was an error processing the request: ${it.localizedMessage}"
+       }
+        val prompt = generatePrompt(query, RetrieverUtils.buildContext(query, documents))
         val response = llModel.query(prompt)
         val llmResponse = parseLLMResponse(response)
-        if (llmResponse.needsUpdate) {
+        return if (llmResponse.needsUpdate) {
             val result = dataSourceRegistry.getDataSourceById(llmResponse.operation!!.dataSourceId)
             result.fold(
                 onSuccess = { dataSource ->
-                    when (llmResponse.operation) {
+                    val operationResult = when (llmResponse.operation) {
                         is Operation.ApiCall -> {
                             apiDataConnector.postData(dataSource as APIDataSource, llmResponse.operation.body)
                         }
@@ -46,15 +45,20 @@ class KogentQueryEngine(
                             sqlDataConnector.writeQuery(dataSource as SQLDataSource, llmResponse.operation.query)
                         }
                     }
-                    return llmResponse.answer
+                    operationResult.fold(
+                        onSuccess = { llmResponse.answer + "\nData source updated successfully." },
+                        onFailure = {
+                            Logger.e(it) { "Failed to update data source: ${it.localizedMessage}" }
+                            "There was an error processing the request: ${it.localizedMessage}"
+                        }
+                    )
                 },
                 onFailure = {
                     Logger.e(it) { "Failed to update data source: ${it.localizedMessage}" }
-                    return "There was an error processing the request: ${it.localizedMessage}"
+                    "There was an error processing the request: ${it.localizedMessage}"
                 }
             )
-        }
-        return llmResponse.answer
+        } else llmResponse.answer
     }
 
     override suspend fun addDataSource(dataSource: DataSource) {

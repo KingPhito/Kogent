@@ -10,7 +10,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import utils.FakeDatasourceFactory
+import utils.FakeDataSourceFactory
 import utils.FakeRegistryFactory
 import utils.RandomPrimitivesFactory
 import kotlin.test.assertEquals
@@ -31,7 +31,7 @@ class UpdateDataSourceTest : BaseTest() {
     @Test
     fun `updateDataSource should correctly update a data source in the registry`() =
         runTest {
-            val dataSource = FakeDatasourceFactory.createAPIDatasource()
+            val dataSource = FakeDataSourceFactory.createAPIDatasource()
             dataSourceRegistryDB.dataSourceRegistryQueries.insert(
                 identifier = dataSource.identifier,
                 sourceType = dataSource.dataSourceType.toString(),

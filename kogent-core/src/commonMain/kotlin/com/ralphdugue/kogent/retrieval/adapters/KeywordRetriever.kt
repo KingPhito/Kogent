@@ -1,14 +1,15 @@
 package com.ralphdugue.kogent.retrieval.adapters
 
+import co.touchlab.kermit.Logger
+import com.ralphdugue.kogent.data.domain.entities.APIDataSource
 import com.ralphdugue.kogent.data.domain.entities.DataSourceRegistry
+import com.ralphdugue.kogent.data.domain.entities.SQLDataSource
 import com.ralphdugue.kogent.data.domain.entities.embedding.EmbeddingModel
 import com.ralphdugue.kogent.indexing.domain.entities.Document
 import com.ralphdugue.kogent.indexing.domain.entities.Index
 import com.ralphdugue.kogent.retrieval.domain.entities.Retriever
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
+import com.ralphdugue.kogent.retrieval.utils.RetrieverUtils
+import kotlinx.coroutines.*
 import org.koin.core.annotation.Single
 
 @Single
@@ -17,72 +18,54 @@ class KeywordRetriever(
     private val embeddingModel: EmbeddingModel,
     private val dataSourceRegistry: DataSourceRegistry,
 ) : Retriever {
-    override suspend fun retrieve(query: String): Result<String> {
+    override suspend fun retrieve(query: String, maxSources: Long): Result<List<Document>> {
         return runCatching {
-            val dataSourceName = selectDataSources(query)
+            val collectionNames = selectDataSources(query, maxSources)
             embeddingModel.getEmbedding(query).fold(
                 onSuccess = { embedding ->
-                    val documents = getDocuments(dataSourceName, embedding)
-                    buildContext(query, documents)
+                    getDocuments(collectionNames, embedding)
                 },
                 onFailure = { throw it }
             )
         }
     }
 
-    private suspend fun getDocuments(dataSourceNames: List<String>, embedding: List<Float>): List<Document> {
-        val documents = mutableListOf<Document>()
-
-        supervisorScope {
-            dataSourceNames.forEach {
-                launch {
-                    documents.addAll(index.searchIndex(it, embedding))
+    private suspend fun getDocuments(collectionNames: Set<String>, embedding: List<Float>): List<Document> {
+        return supervisorScope {
+            collectionNames.map { collectionName ->
+                async(Dispatchers.IO) {
+                    try {
+                        index.searchIndex(collectionName, embedding)
+                    } catch (e: Exception) {
+                        Logger.e(e) { "Failed to retrieve documents for collection: $collectionName" }
+                        emptyList()
+                    }
                 }
-            }
+            }.awaitAll().flatten() // Flatten the list of lists
         }
-        return documents
     }
 
-    private suspend fun selectDataSources(query: String): List<String> {
+    private suspend fun selectDataSources(query: String, maxSources: Long): Set<String> {
         val lowercaseQuery = query.lowercase()
-        val dataSourceNames = mutableListOf<String>()
+        val dataSourceNames = mutableSetOf<String>()
         dataSourceRegistry.getDataSources().fold(
             onSuccess = { dataSources ->
-                dataSources.forEach { dataSource ->
+                dataSources.forEachIndexed { index, dataSource ->
                     if (lowercaseQuery.contains(dataSource.identifier.lowercase())) {
-                        dataSourceNames.add(dataSource.identifier)
+                        dataSourceNames.add(
+                            when (dataSource) {
+                                is SQLDataSource -> dataSource.databaseName
+                                is APIDataSource -> dataSource.baseUrl
+                            }
+                        )
+                    }
+                    if (index >= maxSources - 1) {
+                        return dataSourceNames
                     }
                 }
                 return dataSourceNames
             },
             onFailure = { throw it }
         )
-    }
-
-    private fun buildContext(
-        query: String,
-        documents: List<Document>,
-    ): String {
-        val stringBuilder = StringBuilder()
-        stringBuilder.appendLine("User request: $query\n")
-        documents.forEach { document ->
-            stringBuilder.appendLine("Document: ${document.id}")
-            stringBuilder.appendLine("SourceType: ${document.sourceType}")
-            stringBuilder.appendLine("SourceName: ${document.sourceName}")
-            when (document) {
-                is Document.SQLDocument -> {
-                    stringBuilder.appendLine("Dialect: ${document.dialect}")
-                    stringBuilder.appendLine("Schema: ${document.schema}")
-                    stringBuilder.appendLine("Query: ${document.query}")
-                }
-                is Document.APIDocument -> {
-                    // No additional information for API documents
-                }
-            }
-            stringBuilder.appendLine("Text: ${document.text}")
-            stringBuilder.appendLine("Embedding: ${document.embedding}")
-            stringBuilder.appendLine("-----------------------------")
-        }
-        return stringBuilder.toString()
     }
 }

@@ -13,7 +13,7 @@ interface SQLDataConnector : DataConnector {
      * @param dataSource The data source to fetch data from.
      * @return The result of the query.
      */
-    suspend fun readQuery(dataSource: SQLDataSource): QueryResult.TableQuery
+    suspend fun readQuery(dataSource: SQLDataSource): Result<QueryResult.TableQuery>
 
     /**
      * This function updates the data of an SQL data source.
@@ -24,5 +24,5 @@ interface SQLDataConnector : DataConnector {
     suspend fun writeQuery(
         dataSource: SQLDataSource,
         query: String,
-    ): QueryResult
+    ): Result<Unit>
 }

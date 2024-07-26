@@ -10,7 +10,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import utils.FakeDatasourceFactory
+import utils.FakeDataSourceFactory
 import utils.FakeRegistryFactory
 
 class RegisterDataSourceTest : BaseTest() {
@@ -28,7 +28,7 @@ class RegisterDataSourceTest : BaseTest() {
     @Test
     fun `registerDataSource should correctly store a data source in the registry`() =
         runTest {
-            val dataSource = FakeDatasourceFactory.createAPIDatasource()
+            val dataSource = FakeDataSourceFactory.createAPIDatasource()
             val actual = subject.registerDataSource(dataSource)
             val expected = dataSourceRegistryDB.dataSourceRegistryQueries
                 .selectById(dataSource.identifier)
@@ -42,7 +42,7 @@ class RegisterDataSourceTest : BaseTest() {
     @Test
     fun `registerDataSource should return a failure when the data source is already in the registry`() =
         runTest {
-            val dataSource = FakeDatasourceFactory.createAPIDatasource()
+            val dataSource = FakeDataSourceFactory.createAPIDatasource()
             dataSourceRegistryDB.dataSourceRegistryQueries.insert(
                 identifier = dataSource.identifier,
                 sourceType = dataSource.dataSourceType.toString(),

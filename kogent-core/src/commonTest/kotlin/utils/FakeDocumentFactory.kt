@@ -1,46 +1,48 @@
 package utils
 
+import com.ralphdugue.kogent.data.domain.entities.APIDataSource
+import com.ralphdugue.kogent.data.domain.entities.DataSource
+import com.ralphdugue.kogent.data.domain.entities.SQLDataSource
 import com.ralphdugue.kogent.indexing.domain.entities.Document
 import utils.RandomPrimitivesFactory.genRandomFloatList
-import utils.RandomPrimitivesFactory.genRandomString
 
 object FakeDocumentFactory {
-    fun createRandomSQLDocument(sourceName: String? = null): Document.SQLDocument =
+    fun createSQLDocument(
+        dataSource: SQLDataSource = FakeDataSourceFactory.createSQLDatasource()
+    ): Document.SQLDocument =
         Document.SQLDocument(
-            id = genRandomString(),
-            sourceName = sourceName ?: genRandomString(),
-            dialect = genRandomString(),
-            schema = genRandomString(),
-            query = genRandomString(),
-            text = genRandomString(),
+            id = dataSource.identifier,
+            sourceName = dataSource.databaseName,
+            dialect = dataSource.databaseType.name,
+            schema = dataSource.databaseName,
+            query = dataSource.query,
+            text = dataSource.query,
             embedding = genRandomFloatList(),
         )
 
-    fun createRandomAPIDocument(sourceName: String? = null): Document.APIDocument =
+    fun createAPIDocument(
+        dataSource: APIDataSource = FakeDataSourceFactory.createAPIDatasource()
+    ): Document.APIDocument =
         Document.APIDocument(
-            id = genRandomString(),
-            sourceName = sourceName ?: genRandomString(),
-            text = genRandomString(),
+            id = dataSource.identifier,
+            sourceName = dataSource.baseUrl,
+            baseUrl = dataSource.baseUrl,
+            endpoint = dataSource.endpoint,
+            text = dataSource.body ?: "",
             embedding = genRandomFloatList(),
         )
 
-    fun createRandomDocumentList(size: Int = 10): List<Document> {
-        val document = createRandomSQLDocument()
-        val remaining = size / 2
-        return List(size - remaining) {
-            createRandomSQLDocument(document.sourceName)
-        }.plus(List(remaining) {
-            createRandomAPIDocument(document.sourceName)
-        })
+    fun createDocumentCollection(
+        dataSourceList: List<DataSource> = FakeDataSourceFactory.createDataSourceCollection()
+    ): List<Document> {
+        return dataSourceList.map {
+            when (it) {
+                is SQLDataSource -> createSQLDocument(it)
+                is APIDataSource -> createAPIDocument(it)
+                else -> throw IllegalArgumentException("Unknown DataSource type")
+            }
+        }
     }
 
-    fun createRandomSQLDocumentList(size: Int = 10): List<Document.SQLDocument> =
-        List(size) {
-            createRandomSQLDocument()
-        }
 
-    fun createRandomAPIDocumentList(size: Int = 10): List<Document.APIDocument> =
-        List(size) {
-            createRandomAPIDocument()
-        }
 }

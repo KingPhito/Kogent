@@ -4,14 +4,12 @@ import com.ralphdugue.kogent.cache.DataSourceRegistryDB
 import com.ralphdugue.kogent.data.adapters.registry.LocalDataSourceRegistry
 import com.ralphdugue.kogent.data.domain.entities.DataSourceRegistry
 import common.BaseTest
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import utils.FakeDatasourceFactory
+import utils.FakeDataSourceFactory
 import utils.FakeRegistryFactory
 import kotlin.test.assertTrue
 
@@ -30,7 +28,7 @@ class RemoveDataSourceTest : BaseTest() {
     @Test
     fun `removeDataSource should correctly remove a data source from the registry`() =
         runTest {
-            val dataSource = FakeDatasourceFactory.createAPIDatasource()
+            val dataSource = FakeDataSourceFactory.createAPIDatasource()
             dataSourceRegistryDB.dataSourceRegistryQueries.insert(
                 identifier = dataSource.identifier,
                 sourceType = dataSource.dataSourceType.toString(),

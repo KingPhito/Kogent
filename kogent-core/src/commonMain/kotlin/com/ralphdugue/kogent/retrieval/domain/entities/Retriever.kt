@@ -1,5 +1,6 @@
 package com.ralphdugue.kogent.retrieval.domain.entities
 
+import com.ralphdugue.kogent.indexing.domain.entities.Document
 import com.ralphdugue.kogent.indexing.domain.entities.Index
 import com.ralphdugue.kogent.query.domain.entities.QueryEngine
 
@@ -14,8 +15,9 @@ import com.ralphdugue.kogent.query.domain.entities.QueryEngine
 interface Retriever {
     /**
      * This function retrieves data from an index.
-     * @param query the query to retrieve data for
+     * @param query the query to retrieve data for.
+     * @param maxSources the maximum number of sources to retrieve data from.
      * @return a string that represents the context for a [QueryEngine] to use.
      */
-    suspend fun retrieve(query: String): Result<String>
+    suspend fun retrieve(query: String, maxSources: Long = 100): Result<List<Document>>
 }

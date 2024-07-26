@@ -30,10 +30,14 @@ interface Index {
 
     /**
      * This function deletes data from the index that matches the query.
-     * @param document The data to delete.
+     * @param sourceName The name of the collection to delete from.
+     * @param id The id of the data to delete.
      * @return True if the data was successfully deleted, false otherwise.
      */
-    suspend fun deleteDocument(document: Document): Boolean
+    suspend fun deleteDocument(
+        sourceName: String,
+        id: String,
+    ): Boolean
 
     /**
      * This function updates data in the index that matches the query.

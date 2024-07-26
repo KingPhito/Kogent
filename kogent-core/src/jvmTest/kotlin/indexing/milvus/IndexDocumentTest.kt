@@ -1,8 +1,6 @@
 package indexing.milvus
 
 import com.ralphdugue.kogent.indexing.adapters.MilvusIndex
-import com.ralphdugue.kogent.indexing.domain.entities.Document
-import com.ralphdugue.kogent.indexing.domain.entities.IndexConfig
 import com.ralphdugue.kogent.indexing.domain.entities.VectorStoreConfig
 import com.ralphdugue.kogent.indexing.domain.entities.VectorStoreOptions
 import common.BaseTest
@@ -11,12 +9,8 @@ import io.milvus.v2.service.vector.response.InsertResp
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import utils.FakeDocumentFactory
-import utils.RandomPrimitivesFactory
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -49,7 +43,7 @@ class IndexDocumentTest : BaseTest() {
     @Test
     fun `indexDocument should return true when document is indexed successfully`() =
         runTest {
-            val document = FakeDocumentFactory.createRandomSQLDocument()
+            val document = FakeDocumentFactory.createSQLDocument()
             val mockResponse =
                 InsertResp
                     .builder()
@@ -68,7 +62,7 @@ class IndexDocumentTest : BaseTest() {
     @Test
     fun `indexDocument should return false when document is not indexed successfully`() =
         runTest {
-            val document = FakeDocumentFactory.createRandomSQLDocument()
+            val document = FakeDocumentFactory.createSQLDocument()
             every { clientV2.hasCollection(any()) } returns true
             every { clientV2.loadCollection(any()) } returns Unit
             every { clientV2.insert(any()) } throws Exception()
@@ -82,7 +76,7 @@ class IndexDocumentTest : BaseTest() {
     @Test
     fun `indexDocument should create collection when collection does not exist and insert the document`() =
         runTest {
-            val document = FakeDocumentFactory.createRandomSQLDocument()
+            val document = FakeDocumentFactory.createSQLDocument()
             val mockResponse =
                 InsertResp
                     .builder()
@@ -102,7 +96,7 @@ class IndexDocumentTest : BaseTest() {
     @Test
     fun `indexDocument should return false when collection creation fails`() =
         runTest {
-            val document = FakeDocumentFactory.createRandomSQLDocument()
+            val document = FakeDocumentFactory.createSQLDocument()
             every { clientV2.hasCollection(any()) } returns false
             every { clientV2.createCollection(any()) } throws Exception()
             val expected = false

@@ -12,7 +12,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import utils.FakeDatasourceFactory
+import utils.FakeDataSourceFactory
 import utils.FakeRegistryFactory
 
 class GetDataSourcesTest : BaseTest() {
@@ -30,8 +30,8 @@ class GetDataSourcesTest : BaseTest() {
     @Test
     fun `getDataSources should return all the data sources in the registry`() =
         runTest {
-            val expected = List(3) { FakeDatasourceFactory.createAPIDatasource() }
-                .plus(List(3) { FakeDatasourceFactory.createSQLDatasource() })
+            val expected = List(3) { FakeDataSourceFactory.createAPIDatasource() }
+                .plus(List(3) { FakeDataSourceFactory.createSQLDatasource() })
             val jobs = mutableListOf<Job>()
             expected.forEach { dataSource ->
                 jobs.add(launch {

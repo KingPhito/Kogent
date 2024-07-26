@@ -62,7 +62,7 @@ class RemoveDataTest : BaseTest() {
     @Test
     fun `removeData should return success when data is removed from the index successfully`() =
         runTest {
-            coEvery { index.deleteDocument(any()) } returns true
+            coEvery { index.deleteDocument(any(),any()) } returns true
             coEvery { dataSourceRegistry.removeDataSource(any()) } returns Result.success(Unit)
             val dataSource = SQLDataSource(
                 identifier = RandomPrimitivesFactory.genRandomString(),
@@ -80,7 +80,7 @@ class RemoveDataTest : BaseTest() {
     @Test
     fun `removeData should return a failed result when the data is not removed from the index successfully`() =
         runTest {
-            coEvery { index.deleteDocument(any()) } returns false
+            coEvery { index.deleteDocument(any(),any()) } returns false
             coEvery { dataSourceRegistry.removeDataSource(any()) } returns Result.success(Unit)
             val dataSource = SQLDataSource(
                 identifier = RandomPrimitivesFactory.genRandomString(),

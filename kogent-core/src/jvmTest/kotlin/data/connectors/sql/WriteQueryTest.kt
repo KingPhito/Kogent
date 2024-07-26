@@ -15,10 +15,7 @@ import kotlinx.coroutines.test.runTest
 import utils.FakeDatabaseFactory
 import utils.RandomPrimitivesFactory
 import java.sql.Connection
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class WriteQueryTest : BaseTest() {
     @MockK
@@ -63,7 +60,7 @@ class WriteQueryTest : BaseTest() {
     }
 
     @Test
-    fun `writeQuery should return a failed result when the query did not update any rows`() =
+    fun `writeQuery should return a failure when the query did not update any rows`() =
         runTest {
             val actual =
                 subject.writeQuery(
@@ -81,15 +78,10 @@ class WriteQueryTest : BaseTest() {
                     query = "UPDATE $dbTable SET name = 'Charlie' WHERE id = 3",
                 )
 
-            val expected =
-                QueryResult.TableQuery(
-                    tableName = "",
-                    columnNames = emptySet(),
-                    rows = emptyList(),
-                    resultType = QueryResult.ResultType.FAILURE,
-                )
-            assertEquals(expected.toString().uppercase(), actual.toString().uppercase())
-            assertEquals(expected.resultType, actual.resultType)
+
+            val expected = Result.failure<QueryResult.TableQuery>(actual.exceptionOrNull()!!)
+            assertTrue(actual.isFailure, "Expected Result.failure but was ${actual.getOrNull()}")
+            assertEquals(expected.exceptionOrNull().toString(), actual.exceptionOrNull().toString())
         }
 
     @Test
@@ -120,15 +112,6 @@ class WriteQueryTest : BaseTest() {
                         ),
                     query = "UPDATE $dbTable SET name = 'Charlie' WHERE id = 2",
                 )
-
-            val expected =
-                QueryResult.TableQuery(
-                    tableName = "",
-                    columnNames = emptySet(),
-                    rows = emptyList(),
-                    resultType = QueryResult.ResultType.SUCCESS,
-                )
-            assertEquals(expected.toString().uppercase(), actual.toString().uppercase())
-            assertEquals(expected.resultType, actual.resultType)
+            assertTrue(actual.isSuccess, "Expected Result.success but was ${actual.exceptionOrNull()}")
         }
 }

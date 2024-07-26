@@ -27,7 +27,7 @@ class KogentSQLDataConnector(
     override suspend fun indexData(dataSource: DataSource): Result<Unit> {
         return runCatching {
             val schemaQuery = fetchSchema(dataSource as SQLDataSource)
-            val tableQuery = readQuery(dataSource)
+            val tableQuery = readQuery(dataSource).getOrThrow()
             val tableDocument = createDocument(tableQuery, schemaQuery, dataSource)
             val tableIndexed = index.indexDocument(tableDocument)
 
@@ -43,7 +43,7 @@ class KogentSQLDataConnector(
     override suspend fun updateData(dataSource: DataSource): Result<Unit> {
         return runCatching {
             val schemaQuery = fetchSchema(dataSource as SQLDataSource)
-            val tableQuery = readQuery(dataSource)
+            val tableQuery = readQuery(dataSource).getOrThrow()
             val tableDocument = createDocument(tableQuery, schemaQuery, dataSource)
             val tableUpdated = index.updateDocument(tableDocument)
 
@@ -57,10 +57,11 @@ class KogentSQLDataConnector(
 
     override suspend fun removeData(dataSource: DataSource): Result<Unit> {
         return runCatching {
-            val schemaQuery = fetchSchema(dataSource as SQLDataSource)
-            val tableQuery = readQuery(dataSource)
-            val tableDocument = createDocument(tableQuery, schemaQuery, dataSource)
-            val tableRemoved = index.deleteDocument(tableDocument)
+            dataSource as SQLDataSource
+            val tableRemoved = index.deleteDocument(
+                sourceName = dataSource.databaseName,
+                id = dataSource.identifier
+            )
 
             if (!tableRemoved) {
                 error("Failed to remove document")
@@ -70,17 +71,12 @@ class KogentSQLDataConnector(
         }
     }
 
-    override suspend fun readQuery(dataSource: SQLDataSource): QueryResult.TableQuery {
+    override suspend fun readQuery(dataSource: SQLDataSource): Result<QueryResult.TableQuery> = runCatching {
         val connection = getConnection(dataSource)
         val resultSet = executeQuery(connection, dataSource.query)
         if (resultSet == null) {
             connection.close()
-            return QueryResult.TableQuery(
-                tableName = "",
-                columnNames = emptySet(),
-                rows = emptyList(),
-                resultType = QueryResult.ResultType.FAILURE,
-            )
+            error("Failed to execute query")
         }
         val columnNames = mutableSetOf<String>()
         val rows = mutableListOf<Map<String, Any?>>()
@@ -94,35 +90,28 @@ class KogentSQLDataConnector(
             rows.add(row)
         }
         connection.close()
-        return QueryResult.TableQuery(
+        QueryResult.TableQuery(
             tableName = tableName,
             columnNames = columnNames,
             rows = rows,
-            resultType = QueryResult.ResultType.SUCCESS,
         )
     }
 
     override suspend fun writeQuery(
         dataSource: SQLDataSource,
         query: String,
-    ): QueryResult.TableQuery {
+    ): Result<Unit> = runCatching {
         val connection = getConnection(dataSource)
         val rowsUpdated = executeUpdate(connection, query)
         connection.close()
-        return if (rowsUpdated > 0) {
+        if (rowsUpdated > 0) {
             QueryResult.TableQuery(
                 tableName = "",
                 columnNames = emptySet(),
                 rows = emptyList(),
-                resultType = QueryResult.ResultType.SUCCESS,
             )
         } else {
-            QueryResult.TableQuery(
-                tableName = "",
-                columnNames = emptySet(),
-                rows = emptyList(),
-                resultType = QueryResult.ResultType.FAILURE,
-            )
+            error("Failed to execute query")
         }
     }
 
@@ -159,10 +148,7 @@ class KogentSQLDataConnector(
         val result = executeQuery(connection, query)
         if (result == null) {
             connection.close()
-            return QueryResult.SchemaQuery(
-                schema = emptyMap(),
-                resultType = QueryResult.ResultType.FAILURE,
-            )
+            throw IllegalArgumentException("Failed to execute query")
         }
         val schema = mutableMapOf<String, MutableMap<String, String>>()
         while (result.next()) {
@@ -177,21 +163,14 @@ class KogentSQLDataConnector(
         connection.close()
         return QueryResult.SchemaQuery(
             schema = schema,
-            resultType = QueryResult.ResultType.SUCCESS,
         )
     }
 
     private suspend fun createDocument(
         tableQuery: QueryResult.TableQuery,
         schemaQuery: QueryResult.SchemaQuery,
-        source: DataSource,
-    ): Document {
-        if (source !is SQLDataSource) {
-            throw IllegalArgumentException("Data source is not an SQL data source.")
-        }
-        if (tableQuery.resultType == QueryResult.ResultType.FAILURE) {
-            throw IllegalArgumentException("Cannot create document from failed query result")
-        }
+        source: SQLDataSource,
+    ): Document.SQLDocument {
         val embedding = embeddingModel.getEmbedding(tableQuery.toString()).fold(
             onSuccess = { it },
             onFailure = { throw it },

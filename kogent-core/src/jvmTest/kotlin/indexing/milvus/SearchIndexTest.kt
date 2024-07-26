@@ -2,7 +2,6 @@ package indexing.milvus
 
 import com.ralphdugue.kogent.indexing.adapters.MilvusIndex
 import com.ralphdugue.kogent.indexing.domain.entities.Document
-import com.ralphdugue.kogent.indexing.domain.entities.IndexConfig
 import com.ralphdugue.kogent.indexing.domain.entities.VectorStoreConfig
 import com.ralphdugue.kogent.indexing.domain.entities.VectorStoreOptions
 import common.BaseTest
@@ -46,7 +45,7 @@ class SearchIndexTest : BaseTest() {
     fun `searchIndex should return a list of documents when query is successful`() =
         runTest {
             val query = RandomPrimitivesFactory.genRandomFloatList()
-            val expected = FakeDocumentFactory.createRandomDocumentList()
+            val expected = FakeDocumentFactory.createDocumentCollection()
             val searchResults =
                 expected.map {
                     SearchResult
@@ -82,7 +81,7 @@ class SearchIndexTest : BaseTest() {
     fun `searchIndex should return an empty list when query is unsuccessful`() =
         runTest {
             val query = RandomPrimitivesFactory.genRandomFloatList()
-            val expected = FakeDocumentFactory.createRandomDocumentList()
+            val expected = FakeDocumentFactory.createDocumentCollection()
             every { clientV2.search(any()) } throws Exception("Failed to search")
             val actual = subject.searchIndex(sourceName = expected[0].sourceName, query = query, topK = 10)
             assert(actual.isEmpty())

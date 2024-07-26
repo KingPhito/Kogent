@@ -4,14 +4,12 @@ import com.ralphdugue.kogent.cache.DataSourceRegistryDB
 import com.ralphdugue.kogent.data.adapters.registry.LocalDataSourceRegistry
 import com.ralphdugue.kogent.data.domain.entities.DataSourceRegistry
 import common.BaseTest
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import utils.FakeDatasourceFactory
+import utils.FakeDataSourceFactory
 import utils.FakeRegistryFactory
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -31,7 +29,7 @@ class GetDataSourceByIdTest : BaseTest() {
     @Test
     fun `getDataSourceById should return the data source with the given identifier`() =
         runTest {
-            val expected = FakeDatasourceFactory.createAPIDatasource()
+            val expected = FakeDataSourceFactory.createAPIDatasource()
             dataSourceRegistryDB.dataSourceRegistryQueries.insert(
                 identifier = expected.identifier,
                 sourceType = expected.dataSourceType.toString(),

@@ -23,6 +23,8 @@ sealed interface Document {
         override val id: String,
         override val sourceType: String = SourceType.API.name,
         override val sourceName: String,
+        val baseUrl: String,
+        val endpoint: String,
         override val text: String,
         override val embedding: List<Float>,
     ) : Document {

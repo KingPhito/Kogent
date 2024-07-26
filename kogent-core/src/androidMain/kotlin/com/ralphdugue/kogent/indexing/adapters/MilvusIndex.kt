@@ -75,14 +75,14 @@ class MilvusIndex(
             emptyList()
         }
 
-    override suspend fun deleteDocument(document: Document): Boolean =
+    override suspend fun deleteDocument(sourceName: String, id: String): Boolean =
         try {
             val response =
                 client.delete(
                     DeleteReq
                         .builder()
-                        .collectionName(document.sourceName)
-                        .ids(listOf(document.id))
+                        .collectionName(sourceName)
+                        .ids(listOf(id))
                         .build(),
                 )
             response.deleteCnt == 1L
@@ -120,7 +120,11 @@ class MilvusIndex(
                 data["query"] = document.query
                 listOf(data)
             }
-            is Document.APIDocument -> TODO()
+            is Document.APIDocument -> {
+                data["baseUrl"] = document.baseUrl
+                data["endpoint"] = document.endpoint
+                listOf(data)
+            }
         }
     }
 
@@ -145,7 +149,18 @@ class MilvusIndex(
                     embedding = embedding,
                 )
             }
-            "API" -> Document.APIDocument(id = id, sourceName = sourceName, text = text, embedding = embedding)
+            "API" -> {
+                val baseUrl = searchResult.entity["baseUrl"] as String
+                val endpoint = searchResult.entity["endpoint"] as String
+                Document.APIDocument(
+                    id = id,
+                    sourceName = sourceName,
+                    baseUrl = baseUrl,
+                    endpoint = endpoint,
+                    text = text,
+                    embedding = embedding,
+                )
+            }
             else -> throw IllegalArgumentException("Invalid source type")
         }
     }
