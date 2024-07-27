@@ -30,8 +30,8 @@ class KogentQueryEngine(
             Logger.e(it) { "Failed to retrieve documents: ${it.localizedMessage}" }
             return "There was an error processing the request: ${it.localizedMessage}"
        }
-        val prompt = generatePrompt(query, RetrieverUtils.buildContext(query, documents))
-        val response = llModel.query(prompt)
+        val prompt = generatePrompt(query)
+        val response = llModel.query(prompt,  RetrieverUtils.buildContext(query, documents))
         val llmResponse = parseLLMResponse(response)
         return if (llmResponse.needsUpdate) {
             val result = dataSourceRegistry.getDataSourceById(llmResponse.operation!!.dataSourceId)
@@ -122,7 +122,7 @@ class KogentQueryEngine(
         }
     }
 
-    private fun generatePrompt(query: String, context: String): String =
+    private fun generatePrompt(query: String) =
         """
             You are a helpful AI assistant that can process natural language requests from users related 
             to various data sources. Analyze the query and the context provided below. Based on your analysis, 
@@ -136,7 +136,6 @@ class KogentQueryEngine(
             ${PromptUtils.apiCall}
             
             User request: $query
-            Context: $context
         """.trimIndent()
 
 

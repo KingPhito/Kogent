@@ -27,7 +27,7 @@ data class APIEmbeddingConfig(
 ) : EmbeddingConfig
 
 data class HuggingFaceEmbeddingConfig(
-    val model: String = "all-MiniLM-L6-v2",
+    val endpoint: String = "/feature-extraction/sentence-transformers/all-mpnet-base-v2",
     val apiToken: String,
 ) : EmbeddingConfig
 
@@ -49,12 +49,12 @@ class APIEmbeddingModelConfigBuilder {
  * A builder for the [HuggingFaceEmbeddingConfig].
  */
 class HuggingFaceEmbeddingModelConfigBuilder {
-    var model: String = "all-MiniLM-L6-v2"
+    var endpoint: String = "all-MiniLM-L6-v2"
     var apiToken: String? = null
 
     fun build(): HuggingFaceEmbeddingConfig =
         HuggingFaceEmbeddingConfig(
-            model = model,
+            endpoint = endpoint,
             apiToken = apiToken ?: throw IllegalStateException("apiToken must be set"),
         )
 }

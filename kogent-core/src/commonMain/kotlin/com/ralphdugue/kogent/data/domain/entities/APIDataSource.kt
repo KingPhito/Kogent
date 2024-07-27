@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
  * @param method The HTTP method to use.
  * @param headers The headers to use (optional).
  * @param queryParams The query parameters to use (optional).
- * @param body The body of the request (optional).
+ * @param body The body of the request (optional). This needs to be a JSON string.
  * @author Ralph Dugue
  */
 @Serializable

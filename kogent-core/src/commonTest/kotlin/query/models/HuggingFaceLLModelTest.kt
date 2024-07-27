@@ -31,7 +31,7 @@ class HuggingFaceLLModelTest : BaseTest() {
                 ),
                 client = httpClient
             )
-            val actual = subject.query(RandomPrimitivesFactory.genRandomString())
+            val actual = subject.query(RandomPrimitivesFactory.genRandomString(),)
             assertEquals(expected, actual)
         }
 
@@ -50,7 +50,7 @@ class HuggingFaceLLModelTest : BaseTest() {
                 ),
                 client = httpClient
             )
-            val actual = subject.query(RandomPrimitivesFactory.genRandomString())
+            val actual = subject.query(RandomPrimitivesFactory.genRandomString(),)
             val expected = "There was an error generating the response: $errorMessage"
             assertEquals(expected, actual)
         }

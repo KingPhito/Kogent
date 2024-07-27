@@ -1,7 +1,6 @@
 package data.embedding
 
 import com.ralphdugue.kogent.data.adapters.embedding.HuggingFaceEmbeddingModel
-import com.ralphdugue.kogent.data.domain.entities.embedding.EmbeddingConfig
 import com.ralphdugue.kogent.data.domain.entities.embedding.EmbeddingModel
 import com.ralphdugue.kogent.data.domain.entities.embedding.HuggingFaceEmbeddingConfig
 import common.BaseTest
@@ -28,7 +27,7 @@ class HuggingFaceEmbeddingModelTest : BaseTest() {
             )
             subject = HuggingFaceEmbeddingModel(
                 config = HuggingFaceEmbeddingConfig(
-                    model = RandomPrimitivesFactory.genRandomString(),
+                    endpoint = RandomPrimitivesFactory.genRandomString(),
                     apiToken = RandomPrimitivesFactory.genRandomString()
                 ),
                 client = httpClient
@@ -47,7 +46,7 @@ class HuggingFaceEmbeddingModelTest : BaseTest() {
             )
             subject = HuggingFaceEmbeddingModel(
                 config = HuggingFaceEmbeddingConfig(
-                    model = RandomPrimitivesFactory.genRandomString(),
+                    endpoint = RandomPrimitivesFactory.genRandomString(),
                     apiToken = RandomPrimitivesFactory.genRandomString()
                 ),
                 client = httpClient

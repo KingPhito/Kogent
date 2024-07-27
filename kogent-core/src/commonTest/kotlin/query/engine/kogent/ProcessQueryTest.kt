@@ -68,7 +68,7 @@ class ProcessQueryTest : BaseTest() {
         runTest {
             val errorMessage = RandomPrimitivesFactory.genRandomString()
             coEvery { retriever.retrieve(any()) } returns Result.success(emptyList())
-            coEvery { llModel.query(any()) } returns errorMessage
+            coEvery { llModel.query(any(), any()) } returns errorMessage
             val expected = "Received an invalid response from the model: $errorMessage. \nPlease try again."
             val actual = subject.processQuery("query")
             assertEquals(expected, actual)
@@ -84,7 +84,7 @@ class ProcessQueryTest : BaseTest() {
             )
             val needsUpdate = LLMResponse(needsUpdate = true, operation = operation, answer = "")
             coEvery { retriever.retrieve(any()) } returns Result.success(emptyList())
-            coEvery { llModel.query(any()) } returns json.encodeToString(needsUpdate)
+            coEvery { llModel.query(any(), any()) } returns json.encodeToString(needsUpdate)
             coEvery { dataSourceRegistry.getDataSourceById(any()) } returns Result.failure(Exception(errorMessage))
             val expected = "There was an error finding the data source: $errorMessage"
             val actual = subject.processQuery("query")
@@ -103,7 +103,7 @@ class ProcessQueryTest : BaseTest() {
             val apiDataSource = FakeDataSourceFactory.createAPIDatasource()
             val needsUpdate = LLMResponse(needsUpdate = true, operation = operation, answer = "")
             coEvery { retriever.retrieve(any()) } returns Result.success(emptyList())
-            coEvery { llModel.query(any()) } returns json.encodeToString(needsUpdate)
+            coEvery { llModel.query(any(), any()) } returns json.encodeToString(needsUpdate)
             coEvery { dataSourceRegistry.getDataSourceById(any()) } returns Result.success(apiDataSource)
             coEvery { apiDataConnector.postData(any(), any()) } returns Result.failure(Exception(errorMessage))
             val expected = "There was an error processing the request: $errorMessage"
@@ -122,7 +122,7 @@ class ProcessQueryTest : BaseTest() {
             val sqlDataSource = FakeDataSourceFactory.createSQLDatasource()
             val needsUpdate = LLMResponse(needsUpdate = true, operation = operation, answer = "")
             coEvery { retriever.retrieve(any()) } returns Result.success(emptyList())
-            coEvery { llModel.query(any()) } returns json.encodeToString(needsUpdate)
+            coEvery { llModel.query(any(), any()) } returns json.encodeToString(needsUpdate)
             coEvery { dataSourceRegistry.getDataSourceById(any()) } returns Result.success(sqlDataSource)
             coEvery { sqlDataConnector.writeQuery(any(), any()) } returns Result.failure(Exception(errorMessage))
             val expected = "There was an error processing the request: $errorMessage"
@@ -140,7 +140,7 @@ class ProcessQueryTest : BaseTest() {
             val sqlDataSource = FakeDataSourceFactory.createSQLDatasource()
             val needsUpdate = LLMResponse(needsUpdate = true, operation = operation, answer = "")
             coEvery { retriever.retrieve(any()) } returns Result.success(emptyList())
-            coEvery { llModel.query(any()) } returns json.encodeToString(needsUpdate)
+            coEvery { llModel.query(any(), any()) } returns json.encodeToString(needsUpdate)
             coEvery { dataSourceRegistry.getDataSourceById(any()) } returns Result.success(sqlDataSource)
             coEvery { sqlDataConnector.writeQuery(any(), any()) } returns Result.success(Unit)
             val expected = needsUpdate.answer + "\nData source updated successfully."
@@ -154,7 +154,7 @@ class ProcessQueryTest : BaseTest() {
             val answer = RandomPrimitivesFactory.genRandomString()
             val needsUpdate = LLMResponse(needsUpdate = false, operation = null, answer = answer)
             coEvery { retriever.retrieve(any()) } returns Result.success(emptyList())
-            coEvery { llModel.query(any()) } returns json.encodeToString(needsUpdate)
+            coEvery { llModel.query(any(), any()) } returns json.encodeToString(needsUpdate)
             val actual = subject.processQuery("query")
             assertEquals(answer, actual)
         }

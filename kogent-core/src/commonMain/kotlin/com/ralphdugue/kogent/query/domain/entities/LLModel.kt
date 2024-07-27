@@ -11,14 +11,15 @@ interface LLModel {
     /**
      * Queries the language model with the given text.
      * @param text The text to query the language model with.
+     * @param context The context to use for the query.
      * @return The response from the language model.
      */
-    suspend fun query(text: String): String
+    suspend fun query(text: String, context: String): String
 }
 
 sealed interface LLModelConfig
 data class HuggingFaceLLModelConfig(
-    val endpoint: String = "all-MiniLM-L6-v2",
+    val endpoint: String,
     val apiToken: String,
 ) : LLModelConfig
 
@@ -27,12 +28,12 @@ data class HuggingFaceLLModelConfig(
  * A builder for the [HuggingFaceLLModelConfig].
  */
 class HuggingFaceLLModelConfigBuilder {
-    var model: String = "/models/deepset/roberta-base-squad2"
+    var endpoint: String = "/models/deepset/roberta-base-squad2"
     var apiToken: String? = null
 
     fun build(): HuggingFaceLLModelConfig =
         HuggingFaceLLModelConfig(
-            endpoint = model,
+            endpoint = endpoint,
             apiToken = apiToken ?: throw IllegalStateException("apiToken must be set"),
         )
 }
