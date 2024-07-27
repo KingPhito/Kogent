@@ -108,7 +108,7 @@ class MilvusIndex(
     private fun createData(document: Document): List<JSONObject> {
         val data =
             JSONObject()
-                .fluentPut("id", document.id)
+                .fluentPut("docId", document.id)
                 .fluentPut("sourceName", document.sourceName)
                 .fluentPut("sourceType", document.sourceType)
                 .fluentPut("text", document.text)
@@ -129,11 +129,11 @@ class MilvusIndex(
     }
 
     private fun createDocument(searchResult: SearchResp.SearchResult): Document {
-        val id = searchResult.id as String
+        val id = searchResult.entity["docId"] as String
         val sourceName = searchResult.entity["sourceName"] as String
         val sourceType = searchResult.entity["sourceType"] as String
         val text = searchResult.entity["text"] as String
-        val embedding = searchResult.entity["embedding"] as List<Float>
+        val embedding = searchResult.entity["vector"] as List<Float>
         return when (sourceType) {
             "SQL" -> {
                 val dialect = searchResult.entity["dialect"] as String
@@ -189,9 +189,10 @@ class MilvusIndex(
         client.createCollection(
             CreateCollectionReq
                 .builder()
+                .autoID(true)
                 .collectionName(document.sourceName)
                 .dimension(document.embedding.size)
-                .metricType(MetricType.L2.name)
+                .metricType(MetricType.COSINE.name)
                 .build(),
         )
         return client.getLoadState(GetLoadStateReq.builder().collectionName(document.sourceName).build())

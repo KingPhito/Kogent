@@ -8,7 +8,7 @@ configure<PublishingExtension> {
             artifact(javadocJar)
             pom {
                 name.set("Kogent")
-                description.set("Kogent - Kotlin RAG Pipeline Framework")
+                description.set("Kogent - Kotlin Multiplatform RAG Pipeline Framework")
                 url.set("https://ralphdugue.com")
                 licenses {
                     license {

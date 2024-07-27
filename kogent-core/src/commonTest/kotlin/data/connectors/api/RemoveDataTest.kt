@@ -15,13 +15,9 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import utils.FakeDataSourceFactory
 import utils.MockHttpClientFactory
-import utils.RandomPrimitivesFactory
 import kotlin.test.assertTrue
 
-class IndexDataTest : BaseTest() {
-    private lateinit var subject: APIDataConnector
-    private lateinit var client: HttpClient
-
+class RemoveDataTest : BaseTest() {
     @MockK
     private lateinit var embeddingModel: EmbeddingModel
 
@@ -30,6 +26,9 @@ class IndexDataTest : BaseTest() {
 
     @MockK
     private lateinit var dataSourceRegistry: DataSourceRegistry
+
+    private lateinit var subject: APIDataConnector
+    private lateinit var client: HttpClient
 
     @BeforeEach
     override fun setUp() {
@@ -42,32 +41,21 @@ class IndexDataTest : BaseTest() {
     }
 
     @Test
-    fun `indexData should return a failure when a document can't be created`() =
+    fun `removeData should return a failure when a document can't be removed`() =
         runTest {
-            coEvery { embeddingModel.getEmbedding(any()) } returns Result.failure(Exception("Failed to create document"))
+            coEvery { index.deleteDocument(any(), any()) } returns false
             val apiDataSource = FakeDataSourceFactory.createAPIDatasource()
-            val actual = subject.indexData(apiDataSource)
+            val actual = subject.removeData(apiDataSource)
             assertTrue(actual.isFailure, "Expected Result.failure but was ${actual.getOrNull()}")
         }
 
     @Test
-    fun `indexData should return a failure when a document can't be indexed`() =
+    fun `removeData should return a success when a document is removed`() =
         runTest {
-            coEvery { embeddingModel.getEmbedding(any()) } returns Result.success(RandomPrimitivesFactory.genRandomFloatList())
-            coEvery { index.indexDocument(any()) } returns false
+            coEvery { index.deleteDocument(any(), any()) } returns true
+            coEvery { dataSourceRegistry.removeDataSource(any()) } returns Result.success(Unit)
             val apiDataSource = FakeDataSourceFactory.createAPIDatasource()
-            val actual = subject.indexData(apiDataSource)
-            assertTrue(actual.isFailure, "Expected Result.failure but was ${actual.getOrNull()}")
-        }
-
-    @Test
-    fun `indexData should return a success when a document is indexed successfully`() =
-        runTest {
-            coEvery { embeddingModel.getEmbedding(any()) } returns Result.success(RandomPrimitivesFactory.genRandomFloatList())
-            coEvery { index.indexDocument(any()) } returns true
-            coEvery { dataSourceRegistry.registerDataSource(any()) } returns Result.success(Unit)
-            val apiDataSource = FakeDataSourceFactory.createAPIDatasource()
-            val actual = subject.indexData(apiDataSource)
+            val actual = subject.removeData(apiDataSource)
             assertTrue(actual.isSuccess, "Expected Result.success but was ${actual.exceptionOrNull()}")
         }
 }

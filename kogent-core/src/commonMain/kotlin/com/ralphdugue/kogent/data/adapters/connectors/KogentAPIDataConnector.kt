@@ -43,7 +43,7 @@ class KogentAPIDataConnector(
                 error("Failed to update document")
             }
 
-            dataSourceRegistry.registerDataSource(dataSource)
+            dataSourceRegistry.updateDataSource(dataSource)
         }
 
     override suspend fun removeData(dataSource: DataSource): Result<Unit> =

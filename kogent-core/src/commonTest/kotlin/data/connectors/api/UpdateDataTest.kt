@@ -18,7 +18,7 @@ import utils.MockHttpClientFactory
 import utils.RandomPrimitivesFactory
 import kotlin.test.assertTrue
 
-class IndexDataTest : BaseTest() {
+class UpdateDataTest : BaseTest() {
     private lateinit var subject: APIDataConnector
     private lateinit var client: HttpClient
 
@@ -42,32 +42,32 @@ class IndexDataTest : BaseTest() {
     }
 
     @Test
-    fun `indexData should return a failure when a document can't be created`() =
+    fun `updateData should return a failure when a document can't be created`() =
         runTest {
             coEvery { embeddingModel.getEmbedding(any()) } returns Result.failure(Exception("Failed to create document"))
             val apiDataSource = FakeDataSourceFactory.createAPIDatasource()
-            val actual = subject.indexData(apiDataSource)
+            val actual = subject.updateData(apiDataSource)
             assertTrue(actual.isFailure, "Expected Result.failure but was ${actual.getOrNull()}")
         }
 
     @Test
-    fun `indexData should return a failure when a document can't be indexed`() =
+    fun `updateData should return a failure when a document can't be indexed`() =
         runTest {
             coEvery { embeddingModel.getEmbedding(any()) } returns Result.success(RandomPrimitivesFactory.genRandomFloatList())
-            coEvery { index.indexDocument(any()) } returns false
+            coEvery { index.updateDocument(any()) } returns false
             val apiDataSource = FakeDataSourceFactory.createAPIDatasource()
-            val actual = subject.indexData(apiDataSource)
+            val actual = subject.updateData(apiDataSource)
             assertTrue(actual.isFailure, "Expected Result.failure but was ${actual.getOrNull()}")
         }
 
     @Test
-    fun `indexData should return a success when a document is indexed successfully`() =
+    fun `updateData should return success when a document is indexed`() =
         runTest {
             coEvery { embeddingModel.getEmbedding(any()) } returns Result.success(RandomPrimitivesFactory.genRandomFloatList())
-            coEvery { index.indexDocument(any()) } returns true
-            coEvery { dataSourceRegistry.registerDataSource(any()) } returns Result.success(Unit)
+            coEvery { index.updateDocument(any()) } returns true
+            coEvery { dataSourceRegistry.updateDataSource(any()) } returns Result.success(Unit)
             val apiDataSource = FakeDataSourceFactory.createAPIDatasource()
-            val actual = subject.indexData(apiDataSource)
+            val actual = subject.updateData(apiDataSource)
             assertTrue(actual.isSuccess, "Expected Result.success but was ${actual.exceptionOrNull()}")
         }
 }

@@ -50,13 +50,13 @@ class SearchIndexTest : BaseTest() {
                 expected.map {
                     SearchResult
                         .builder()
-                        .id(it.id)
                         .entity(
                             mapOf(
+                                "docId" to it.id,
                                 "sourceName" to it.sourceName,
                                 "sourceType" to it.sourceType,
                                 "text" to it.text,
-                                "embedding" to it.embedding.toList(),
+                                "vector" to it.embedding.toList(),
                             ),
                         ).build()
                 }
